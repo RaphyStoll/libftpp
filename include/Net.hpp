@@ -46,5 +46,5 @@ public:
 	// Donne le fd à l'appelant (ne fermera plus)
 	int  release();
 };
-}
-}
+} // net
+} // libftpp

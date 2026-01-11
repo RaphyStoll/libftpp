@@ -2,6 +2,7 @@
 
 #include <cctype>
 #include <limits>
+#include <cstdlib>
 
 using libftpp::str::StringUtils;
 
@@ -69,6 +70,59 @@ bool StringUtils::iequals(const std::string& a, const std::string& b) {
 		if (to_lower(ca) != to_lower(cb))
 			return false;
 	}
+	return true;
+}
+
+int StringUtils::stoi(const std::string &s) {
+	return std::atoi(s.c_str());
+}
+
+std::string StringUtils::itos(const int n) {
+	return to_string(n);
+}
+
+bool StringUtils::parse_int(const std::string& s, int& out) {
+	if (s.empty())
+		return false;
+
+	size_t i = 0;
+	bool negative = false;
+	
+	if (s[i] == '-') {
+		negative = true;
+		++i;
+	} else if (s[i] == '+') {
+		++i;
+	}
+
+	if (i == s.size())
+		return false;
+
+	unsigned int uval = 0;
+	unsigned int limit;
+	if (negative)
+		limit = (unsigned int)std::numeric_limits<int>::max() + 1;
+	else
+		limit = (unsigned int)std::numeric_limits<int>::max();
+
+	for (; i < s.size(); ++i) {
+		unsigned char c = (unsigned char)s[i];
+		if (c < '0' || c > '9')
+			return false;
+		
+		unsigned int digit = (unsigned int)(c - '0');
+
+		if (uval > (limit - digit) / 10)
+			return false;
+		
+		uval = uval * 10 + digit;
+	}
+
+	if (negative)
+		out = -(int)uval;
+	else
+		out = (int)uval;
+
 	return true;
 }
 

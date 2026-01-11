@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstddef>
+#include <sstream>
 
 namespace libftpp {
 namespace str {
@@ -21,6 +22,16 @@ private:
 public:
 	static std::string toLower(const std::string& s);
 	static std::string toUpper(const std::string& s);
+	static int stoi(const std::string &s);
+	static std::string itos(const int n);
+
+	template <typename T>
+	static std::string to_string(const T& n) {
+		std::ostringstream ss;
+		ss << n;
+		return ss.str();
+	}
+	
 	// Retire les espaces (isspace) au début de la chaîne
 	static std::string ltrim(const std::string& s);
 	
@@ -38,6 +49,9 @@ public:
 	// Comparaison insensible à la casse.
 	// Retourne true si a == b (en ignorant la casse).
 	static bool iequals(const std::string& a, const std::string& b);
+
+	// Tente de parser un int depuis la chaîne s.
+	static bool parse_int(const std::string& s, int& out);
 
 	// Tente de parser un unsigned int depuis la chaîne s.
 	// Retourne true si succès, false si erreur (caractère invalide ou overflow).
