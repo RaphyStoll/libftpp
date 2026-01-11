@@ -1,12 +1,14 @@
 #pragma once
 
 #include <string>
+
+#include "Buffer.hpp"
+#include "Clock.hpp"
+#include "config.hpp"
+#include "ConfigTokenizer.hpp"
 #include "debug.hpp"
 #include "DisplayFormatter.hpp"
-#include "StringUtils.hpp"
-#include "Clock.hpp"
-#include "Buffer.hpp"
-#include "Net.hpp"
 #include "HttpRequest.hpp"
-#include "ConfigTokenizer.hpp"
-#include "config.hpp"
+#include "Net.hpp"
+#include "StringUtils.hpp"
+

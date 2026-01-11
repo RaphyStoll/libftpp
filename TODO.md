@@ -57,6 +57,16 @@ pratiques absents du standard (sans `<algorithm>`, compatible 42).
 
 ---
 
+## 🌐 Network / HTTP Utils
+
+| Prototype / Class | Description |
+|------------------|-------------|
+| `bool sendAll(int fd, const std::string& data);` | Wrapper robuste sur `send()` pour garantir l'envoi complet bufferisé. |
+| `class HttpResponse` | Classe miroir de `HttpRequest` pour construire des réponses (status, headers, body) et serializer proprement. |
+| `class TcpListener` | Wrapper RAII pour `socket` -> `bind` -> `listen` pour simplifier le bootstrap serveur. |
+
+---
+
 ## ✅ Résumé
 
 Ces fonctions sont :
