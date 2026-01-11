@@ -1,81 +1,148 @@
-NAME        = Webserv
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: libftpp                                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/10/23                              #+#    #+#              #
+#    Updated: 2025/10/23                             ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-CPP         = c++
-CPPFLAGS    = -Wall -Wextra -Werror -std=c++98 -MMD -MP
+# Nom de la bibliothèque
+NAME = libftpp
 
-LIBFT_DIR   = lib/LIBFTPP
-LIBFT_A     = $(LIBFT_DIR)/libftpp.a
-INCFLAGS    = -I include -I $(LIBFT_DIR)/include
+# Extensions selon l'OS
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    SHARED_EXT = .dylib
+    SHARED_FLAGS = -dynamiclib -install_name @rpath/$(NAME)$(SHARED_EXT)
+else
+    SHARED_EXT = .so
+    SHARED_FLAGS = -shared
+endif
 
-SRC_DIR     = src
-OBJ_DIR     = obj
+# Noms des bibliothèques
+STATIC_LIB = $(NAME).a
+SHARED_LIB = $(NAME)$(SHARED_EXT)
 
-SRCS        = $(wildcard $(SRC_DIR)/*.cpp)
-OBJS        = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
-DEPS        = $(OBJS:.o=.d)
+# Compilateur et flags
+CXX = c++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS_SHARED = $(CXXFLAGS) -fPIC
 
-RM          = rm -rf
+# Répertoires
+SRC_DIR = src
+INC_DIR = include
+OBJ_DIR = obj
+OBJ_DIR_STATIC = $(OBJ_DIR)/static
+OBJ_DIR_SHARED = $(OBJ_DIR)/shared
 
-# Docker Compose command ("docker compose" on recent setups, "docker-compose" on older ones)
-COMPOSE     := $(shell \
-	if docker compose version > /dev/null 2>&1; then \
-		echo 'docker compose'; \
-	elif command -v docker-compose > /dev/null 2>&1; then \
-		echo 'docker-compose'; \
-	else \
-		echo ''; \
-	fi)
+# Ajouter le chemin des includes s'il existe
+ifneq ($(wildcard $(INC_DIR)),)
+    CXXFLAGS += -I$(INC_DIR)
+    CXXFLAGS_SHARED = $(CXXFLAGS) -fPIC
+endif
 
-all: $(NAME)
+# Trouver tous les fichiers .cpp récursivement
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 
+# Si pas de src/ trouvé, utiliser wildcard à la racine
+ifeq ($(SRCS),)
+    SRCS = $(wildcard *.cpp)
+endif
 
-$(NAME): $(LIBFT_A) $(OBJS)
-	@if [ -z "$(strip $(OBJS))" ]; then \
-		echo "Error: no sources found in $(SRC_DIR)/ (*.cpp)."; \
-		echo "Hint: add at least $(SRC_DIR)/main.cpp with an int main()."; \
-		exit 1; \
-	fi
-	$(CPP) $(CPPFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
+# Objets pour bibliothèque statique
+OBJS_STATIC = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_STATIC)/%.o,$(SRCS))
+ifeq ($(SRCS),$(wildcard *.cpp))
+    OBJS_STATIC = $(patsubst %.cpp,$(OBJ_DIR_STATIC)/%.o,$(SRCS))
+endif
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
-	$(CPP) $(CPPFLAGS) $(INCFLAGS) -c $< -o $@
+# Objets pour bibliothèque dynamique
+OBJS_SHARED = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_SHARED)/%.o,$(SRCS))
+ifeq ($(SRCS),$(wildcard *.cpp))
+    OBJS_SHARED = $(patsubst %.cpp,$(OBJ_DIR_SHARED)/%.o,$(SRCS))
+endif
 
-$(LIBFT_A):
-	$(MAKE) -C $(LIBFT_DIR) static
+# Couleurs
+GREEN = \033[0;32m
+BLUE = \033[0;34m
+RED = \033[0;31m
+YELLOW = \033[0;33m
+NC = \033[0m
 
+# Règles
+.PHONY: all static dev clean fclean re help
+
+# Par défaut: compile les deux
+all: static dev
+
+# Compilation bibliothèque statique
+static: $(STATIC_LIB)
+
+$(STATIC_LIB): $(OBJS_STATIC)
+	@echo "$(BLUE)Creating static library $(STATIC_LIB)...$(NC)"
+	@ar rcs $(STATIC_LIB) $(OBJS_STATIC)
+	@echo "$(GREEN)✓ Static library $(STATIC_LIB) created successfully!$(NC)"
+
+# Compilation bibliothèque dynamique
+dev: $(SHARED_LIB)
+
+$(SHARED_LIB): $(OBJS_SHARED)
+	@echo "$(BLUE)Creating shared library $(SHARED_LIB)...$(NC)"
+	@$(CXX) $(SHARED_FLAGS) -o $(SHARED_LIB) $(OBJS_SHARED)
+	@echo "$(GREEN)✓ Shared library $(SHARED_LIB) created successfully!$(NC)"
+
+# Compilation des objets statiques
+$(OBJ_DIR_STATIC)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
+	@echo "$(YELLOW)Compiling (static): $<$(NC)"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Cas où les sources sont à la racine
+$(OBJ_DIR_STATIC)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	@echo "$(YELLOW)Compiling (static): $<$(NC)"
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compilation des objets dynamiques
+$(OBJ_DIR_SHARED)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
+	@echo "$(YELLOW)Compiling (shared): $<$(NC)"
+	@$(CXX) $(CXXFLAGS_SHARED) -c $< -o $@
+
+# Cas où les sources sont à la racine
+$(OBJ_DIR_SHARED)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	@echo "$(YELLOW)Compiling (shared): $<$(NC)"
+	@$(CXX) $(CXXFLAGS_SHARED) -c $< -o $@
+
+# Nettoyage des objets
 clean:
-	$(RM) $(OBJ_DIR)
-	$(MAKE) -C $(LIBFT_DIR) clean
+	@echo "$(RED)Cleaning object files...$(NC)"
+	@rm -rf $(OBJ_DIR)
+	@echo "$(GREEN)✓ Object files cleaned!$(NC)"
 
+# Nettoyage complet
 fclean: clean
-	$(RM) $(NAME)
-	$(MAKE) -C $(LIBFT_DIR) fclean
+	@echo "$(RED)Cleaning libraries...$(NC)"
+	@rm -f $(STATIC_LIB) $(SHARED_LIB)
+	@echo "$(GREEN)✓ Libraries cleaned!$(NC)"
 
+# Recompilation
 re: fclean all
 
--include $(DEPS)
-
-colima-start:
-	@if command -v colima > /dev/null; then \
-		colima status > /dev/null 2>&1 || colima start; \
-	fi
-
-up: colima-start
-	@if [ -z "$(COMPOSE)" ]; then echo "Error: neither 'docker compose' nor 'docker-compose' found."; exit 1; fi
-	$(COMPOSE) up -d --build
-
-down:
-	@if [ -z "$(COMPOSE)" ]; then echo "Error: neither 'docker compose' nor 'docker-compose' found."; exit 1; fi
-	$(COMPOSE) down
-
-join:
-	docker exec -it webserv_tester /bin/zsh
-
-logs:
-	@if [ -z "$(COMPOSE)" ]; then echo "Error: neither 'docker compose' nor 'docker-compose' found."; exit 1; fi
-	$(COMPOSE) logs -f
-
-re-docker: down up
-
-.PHONY: all clean fclean re colima-start up down join logs re-docker
+# Aide
+help:
+	@echo "$(BLUE)Available targets:$(NC)"
+	@echo "  $(GREEN)all$(NC)      - Compile both static and shared libraries (default)"
+	@echo "  $(GREEN)static$(NC)   - Compile static library (.a)"
+	@echo "  $(GREEN)dev$(NC)      - Compile shared library (.so/.dylib)"
+	@echo "  $(GREEN)clean$(NC)    - Remove object files"
+	@echo "  $(GREEN)fclean$(NC)   - Remove object files and libraries"
+	@echo "  $(GREEN)re$(NC)       - Recompile everything"
+	@echo "  $(GREEN)help$(NC)     - Show this help message"
+	@echo ""
+	@echo "$(YELLOW)OS detected: $(UNAME_S)$(NC)"
+	@echo "$(YELLOW)Shared library extension: $(SHARED_EXT)$(NC)"

@@ -1,9 +1,0 @@
-services:
-  webserv:
-    build: .
-    container_name: webserv_tester
-    volumes:
-      - ./:/usr/src/webserv
-    network_mode: "host"
-    tty: true
-    stdin_open: true
