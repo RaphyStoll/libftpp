@@ -1,0 +1,11 @@
+#randfile
+.vscode
+.history
+*.log
+*.a
+*.so
+*.dylib
+*.o
+*.DS_Store
+*.d
+*.out
