@@ -30,7 +30,7 @@ pratiques absents du standard (sans `<algorithm>`, compatible 42).
 
 | Prototype | Description |
 |----------|-------------|
-| `bool isDigit(const std::string &s);` | Retourne vrai si `s` contient uniquement `0–9`. |
+| `bool git(const std::string &s);` | Retourne vrai si `s` contient uniquement `0–9`. |
 | `bool isAlpha(const std::string &s);` | Retourne vrai si `s` contient uniquement des lettres A-Z / a-z. |
 | `bool isAlnum(const std::string &s);` | Retourne vrai si `s` contient uniquement lettres et/ou chiffres. |
 | `bool isSpace(const std::string &s);` | Retourne vrai si `s` ne contient que des espaces / tab / newline. |
