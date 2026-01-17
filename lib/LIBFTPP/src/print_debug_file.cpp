@@ -39,7 +39,7 @@ void libftpp::debug::DebugLogger::log(const std::string& message) {
 		std::ofstream outfile(_filename.c_str(), std::ios::app);
 		if (!outfile)
 			return ;
-        
+		
 		outfile << message << std::endl;
 		outfile.close();
 	#else
@@ -68,17 +68,17 @@ void libftpp::debug::DebugLogger::clear() {
 void libftpp::debug::DebugLogger::debug(const std::string& message) {
 	#ifdef DEBUG
 		static bool first = true;
-        
+		
 		std::ios_base::openmode mode = std::ios::app;
 		if (first) {
 			mode = std::ios::trunc;
 			first = false;
 		}
-        
+		
 		std::ofstream outfile("debug.log", mode);
 		if (!outfile)
 			return ;
-        
+		
 		outfile << message << std::endl;
 		outfile.close();
 	#else
