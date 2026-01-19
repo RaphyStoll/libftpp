@@ -41,12 +41,28 @@ void dir_server(DataConfig *data)
 		data->currentServer.index = token[i];
 		i++;
 	}
-	else
+	else if(token[i] == "max_body_size")
 	{
-		std::cerr << "commande server non prise en compte" << std::endl;
+		i++;
+		if(i >= token.size())
+			std::cerr << "erreur acces token" << std::endl; //SDU il faut sortir sinon segfault
+		data->currentServer.max_body_size = libftpp::str::StringUtils::stoi(token[i]); // SDU trop long
 		i++;
 	}
-	
+	else if(token[i] == "error_page")
+	{
+		i++;
+		if(i + 1 >= token.size())
+			std::cerr << "erreur acces token" << std::endl; //SDU il faut sortir sinon segfault
+		size_t n = libftpp::str::StringUtils::stoi(token[i]);
+		data->currentServer.error_pages.insert(std::make_pair(n,token[i + 1])); // SDU trop long
+		i++;
+	}
+	else
+	{
+		std::cerr << "Unknow directive : " << token[i] << " in server" << std::endl;
+		i++;
+	}
 	data->i = i;
 }
 
@@ -87,17 +103,33 @@ void dir_route(DataConfig *data)
 		data->currentRoute.root = token[i];
 		i++;
 	}
+	else if(token[i] == "methods")
+	{
+		i++;
+		if(i >= token.size())
+			std::cerr << "erreur acces token" << std::endl; //SDU il faut sortir sinon segfault
+		while(token[i] == "GET" || token[i] == "POST" || token[i] == "DELETE")
+		{
+			data->currentRoute.methods.push_back(token[i]);
+			i++;
+		}
+	}
 	else if(token[i] == "directory_listing")
 	{
 		i++;
 		if(i >= token.size())
 			std::cerr << "erreur acces token" << std::endl; //SDU il faut sortir sinon segfault
-		data->currentRoute.directory_listing = libftpp::str::StringUtils::stoi(token[i]); //SDU :trop long
+		if(token[i] == "off")
+			data->currentRoute.directory_listing = 0;
+		else if(token[i] == "on")
+			data->currentRoute.directory_listing = 1;
+		else
+			std::cerr << "Unknow directive : " << token[i] << " in route" << std::endl;
 		i++;
 	}
 	else
 	{
-		std::cerr << "commande route non prise en compte" << std::endl;
+		std::cerr << "Unknow directive : " << token[i] << " in route" << std::endl;
 		i++;
 	}
 	

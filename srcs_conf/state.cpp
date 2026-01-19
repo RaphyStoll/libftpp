@@ -37,6 +37,7 @@ void state_server(DataConfig *data)
 	{
 		data->state = IN_ROUTE;
 		data->currentRoute = RouteConfig();
+		data->currentRoute.path = token[i+1];
 		i += 3;
 //		std::cout << "in route" << std::endl;
 		data->i = i;

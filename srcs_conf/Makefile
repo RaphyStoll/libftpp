@@ -1,7 +1,8 @@
 NAME = pars
 
 PROG =	main\
-		init\
+		RouteConfig\
+		ServerConfig\
 		state\
 		directive\
 		print\

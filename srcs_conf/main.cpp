@@ -12,7 +12,7 @@ void suppr_comment(std::string &line) //SDU deplacer dans les utilitaires
 
 
 
-void tockenize(DataConfig *data) //SDU deplacer dans les utilitaires
+void tockenize(DataConfig *data) //SDU deplacer dans les utilitaires ?
 {
 	std::string line;
 	std::string word;
@@ -60,7 +60,6 @@ void tockenize(DataConfig *data) //SDU deplacer dans les utilitaires
 
 static void pars_state(DataConfig *data)
 {
-
 	data->i = 0;
 	data->state = GLOBAL;
 	std::vector<std::string> token = data-> token;

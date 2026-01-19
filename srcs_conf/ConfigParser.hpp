@@ -10,36 +10,43 @@
 
 #include"StringUtils.hpp"
 
-enum ParseState {
+enum ParseState
+{
 	GLOBAL,
 	IN_SERVER,
 	IN_ROUTE
 };
 
-struct RouteConfig
+class RouteConfig
 {
-	std::string path;
-	std::string root;
-	std::vector<std::string> methods;
-	bool directory_listing;
-	bool upload;
-	std::string upload_path;
-	bool cgi;
-	std::string cgi_extention;
-	std::string cgi_path;
+	public :
+
+	std::string path; // route /upload
+	std::string root; // root ./www/site1
+	std::vector<std::string> methods; // [GET ,POST]
+	bool directory_listing; // on
+	bool upload; // on
+	std::string upload_path; // ./www/site1/uploads
+	bool cgi; //on
+	std::string cgi_extention; // .php
+	std::string cgi_path; // /usr/bin/php-cgi
+
+	//redirect??
 
 	RouteConfig();
 };
 
-struct ServerConfig
+class ServerConfig
 {
-	std::string listen;
-	int port;
-	std::string root;
-	std::string index;
-	size_t max_body_size;
-	std::map<int, std::string> error_pages;
-	std::vector<RouteConfig> routes;
+	public :
+
+	std::string listen; // 127.0.0.1
+	int port; // 8080
+	std::string root; // ./www/site1
+	std::string index; // index.html
+	size_t max_body_size; // 1000000
+	std::map<int, std::string> error_pages; // error_page 404 ./errors/404.html
+	std::vector<RouteConfig> routes; // route/..
 
 	ServerConfig();
 };
