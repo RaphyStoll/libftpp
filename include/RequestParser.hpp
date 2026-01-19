@@ -22,6 +22,8 @@ private:
 	State _state;
 	std::string _buffer;
 
+	bool _parseRequestLine(const std::string &line);
+	bool _parseHeader(const std::string &line);
 };
 
 } // namespace http
