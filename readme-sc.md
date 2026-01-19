@@ -103,3 +103,11 @@ Focus
 method = token
 request-line = method SP request-target SP HTTP-version CRLF
 ```
+
+
+## random notes
+
+detecter le type de requete/donnée -> parse en fonction
+
+
+1945 : a partir du chap 4 giga important
