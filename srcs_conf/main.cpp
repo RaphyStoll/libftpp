@@ -82,7 +82,7 @@ static void pars_state(DataConfig *data)
 	}
 
 	if (data->state != GLOBAL)
-		std::cerr << "block {} unclosed" << std::endl;
+		throw std::runtime_error("block {} unclosed");
 
 }
 
@@ -91,7 +91,7 @@ static void open_conf(DataConfig *data)
 	std::ifstream file(data->config_path.c_str(), std::ios::in);
 	if (!file.is_open())
 	{
-		std::cerr << "fichier introuvable" << std::endl;
+		throw std::runtime_error("\"" + data->config_path + "\" introuvable");
 	}
 
 	std::string line;
@@ -104,7 +104,7 @@ static void open_conf(DataConfig *data)
 
 	if(data->brut_line.empty()) //SDU inutil, tester + tard??
 	{
-		std::cerr << "fichier de config vide" << std::endl;
+		throw std::runtime_error("fichier de config vide");
 	}
 }
 
@@ -126,7 +126,7 @@ static void openFileAndParseConfig(DataConfig *data)
 	print_conf(data->servers);
 }
 
-int main () 
+int main ()
 {
 	DataConfig data;
 
@@ -136,7 +136,14 @@ int main ()
 	std::string config_file = "config.conf";
 	data.config_path = config_folder + "/" + config_file;
 
-	openFileAndParseConfig(&data);
+	try
+	{
+		openFileAndParseConfig(&data);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Erreur : " << e.what() << std::endl;
+	}
 
 	return(0);
 }

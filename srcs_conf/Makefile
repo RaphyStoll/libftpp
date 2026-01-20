@@ -42,3 +42,5 @@ re:				fclean all
 a:				fclean all clean
 
 .PHONY:			all clean fclean re a
+
+# valgrind --leak-check=full --show-leak-kinds=all ./programme

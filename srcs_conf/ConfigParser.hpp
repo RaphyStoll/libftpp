@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <cctype>
+#include <stdexcept>
 
 #include"StringUtils.hpp"
 

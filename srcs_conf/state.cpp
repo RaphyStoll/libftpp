@@ -7,16 +7,13 @@ void state_global(DataConfig *data)
 
 	if(i + 1 < token.size() && token[i] == "server" && token[i + 1] == "{")
 	{
+//		std::cout << "in server 1" << std::endl;
 		data->state = IN_SERVER;
 		data->currentServer = ServerConfig();
 		i += 2;
-//		std::cout << "in server" << std::endl;
 	}
 	else
-	{
-		std::cerr << "invalid directiv" << std::endl;
-		i++;
-	}
+		throw std::runtime_error("Invalid directive");
 	data->i = i;
 }
 
@@ -43,11 +40,7 @@ void state_server(DataConfig *data)
 		data->i = i;
 	}
 	else
-	{	
-//		std::cout << i << " " << std::endl;
 		dir_server(data);
-	}
-
 }
 
 void state_route(DataConfig *data)
@@ -57,17 +50,14 @@ void state_route(DataConfig *data)
 
 	if(token[i] == "}")
 	{
+//		std::cout << "in server 2" << std::endl;
 		data->state = IN_SERVER;
 		data->currentServer.routes.push_back(data->currentRoute);
 		i++;
-//		std::cout << "de retour in server" << std::endl;
 		data->i = i;
 	}
+	else if(token[i] == "{")
+		throw std::runtime_error("too much block {}");
 	else
-	{
 		dir_route(data);
-//		std::cout << i << " " << std::endl;
-//		i++;
-	}
-
 }
