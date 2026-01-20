@@ -175,19 +175,19 @@ bool StringUtils::parse_size_t(const std::string& s, size_t& out) {
 }
 
 std::string StringUtils::toLower(const std::string& s) {
-    std::string out = s;
-    for (size_t i = 0; i < out.size(); ++i) {
-        unsigned char c = (unsigned char)out[i];
-        out[i] = (char)std::tolower(c);
-    }
-    return out;
+	std::string out = s;
+	for (size_t i = 0; i < out.size(); ++i) {
+		unsigned char c = (unsigned char)out[i];
+		out[i] = (char)std::tolower(c);
+	}
+	return out;
 }
 
 std::string StringUtils::toUpper(const std::string& s) {
-    std::string out = s;
-    for (size_t i = 0; i < out.size(); ++i) {
-        unsigned char c = (unsigned char)out[i];
-        out[i] = (char)std::toupper(c);
-    }
-    return out;
+	std::string out = s;
+	for (size_t i = 0; i < out.size(); ++i) {
+		unsigned char c = (unsigned char)out[i];
+		out[i] = (char)std::toupper(c);
+	}
+	return out;
 }

@@ -27,7 +27,7 @@ class DebugLogger {
 
 		// @brief Destructeur
 		~DebugLogger();
-        
+		
 		/**
 		 * @brief Ajoute un message dans le fichier de log (append)
 		 * @param message message à écrire
@@ -36,7 +36,7 @@ class DebugLogger {
 
 		// Efface le contenu du fichier de log (mode trunc)
 		void clear();
-        
+		
 		/**
 		 * @brief Méthode statique pour écrire dans le fichier global `debug.log`
 		 *
