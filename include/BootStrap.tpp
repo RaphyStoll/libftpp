@@ -2,6 +2,7 @@
 
 # include "../lib/LIBFTPP/include/Net.hpp"
 # include "BootStrap.hpp"
+# include "EventLoop.hpp"
 
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -29,9 +30,9 @@ namespace webserv {
 
 		std::cout << "[BootStrap] Sockets ready. Launching EventLoop..." << std::endl;
 
-		// TODO: Ici viendra l'instanciation de l'EventLoop
-		// EventLoop loop(_listen_sockets);
-		// loop.run();
+		// TODO: Ici EventLoop
+		EventLoop loop(_listen_sockets);
+		loop.run();
 	}
 
 	template <typename TConfig>
