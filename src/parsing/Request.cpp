@@ -9,10 +9,10 @@ namespace http
 
   std::string Request::getHeader(const std::string &name) const
   {
-    std::map<std::string, std::string>::const_iterator it = _headers.find(name);
-    if (it != _headers.end())
-      return it->second;
-    return "";
+	std::map<std::string, std::string>::const_iterator it = _headers.find(name);
+	if (it != _headers.end())
+	  return it->second;
+	return "";
   }
 
   std::string Request::getMethod() const { return _method; }
@@ -22,7 +22,7 @@ namespace http
   void Request::setPath(const std::string &path) { _path = path; }
   void Request::setHeader(const std::string &name, const std::string &value)
   {
-    _headers[name] = value;
+	_headers[name] = value;
   }
   void Request::setBody(const std::string &body) { _body = body; }
 

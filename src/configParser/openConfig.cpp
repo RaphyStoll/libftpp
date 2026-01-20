@@ -64,7 +64,7 @@ static void pars_state(DataConfig *data)
 	data->i = 0;
 	data->state = GLOBAL;
 	std::vector<std::string> token = data-> token;
-	libftpp::debug::print_debug("token.size = " + token.size());
+	//libftpp::debug::print_debug("token.size = " + token.size());
 
 	while(data->i < token.size())
 	{

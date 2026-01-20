@@ -10,46 +10,44 @@ using namespace webserv;
 
 //tmp
 NetworkConfig parseConfig(const std::string& config_file) {
-    (void)config_file; //argv qui est le pathg du cofig file
-    NetworkConfig config;
+	(void)config_file; //argv qui est le pathg du cofig file
+	NetworkConfig config;
 
-    ServerConfig srv1;
-    srv1.server_name = "localhost";
-    srv1.root = "/var/www/html";
-    config[9001].push_back(srv1);
+	ServerConfig1 srv1;
+	srv1.server_name = "localhost";
+	srv1.root = "/var/www/html";
+	config[9001].push_back(srv1);
 
-    ServerConfig srv2;
-    srv2.server_name = "admin";
-    srv2.root = "/var/www/admin";
-    config[9002].push_back(srv2);
+	ServerConfig1 srv2;
+	srv2.server_name = "admin";
+	srv2.root = "/var/www/admin";
+	config[9002].push_back(srv2);
 
-    return config;
+	return config;
 }
 
 int main(int argc, char** argv) {
-    std::string config_path = "config/config.conf";
 	DataConfig data;
+	data.config_path = "config/config.conf";
 
-    if (argc > 1) {
-        config_path = argv[1];
-    }
-
-    try {
-
-		
-		std::cout << "[Main] Loading configuration from " << config_path << "..." << std::endl;
+	if (argc > 1) {
+		data.config_path = argv[1];
+	}
+	try {
+	
+		std::cout << "[Main] Loading configuration from " << data.config_path << "..." << std::endl;
 		openFileAndParseConfig(&data);
-        NetworkConfig net_config = parseConfig(config_path);
+		NetworkConfig net_config = parseConfig(data.config_path);
 
-        std::cout << "[Main] Config loaded. Initializing BootStrap..." << std::endl;
-        BootStrap<NetworkConfig> server(net_config);
+		std::cout << "[Main] Config loaded. Initializing BootStrap..." << std::endl;
+		BootStrap<NetworkConfig> server(net_config);
 
-        server.start();
+		server.start();
 
-    } catch (const std::exception& e) {
-        std::cerr << "Fatal Error: " << e.what() << std::endl;
-	    return 1;
-    }
+	} catch (const std::exception& e) {
+		std::cerr << "Fatal Error: " << e.what() << std::endl;
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }

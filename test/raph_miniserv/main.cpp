@@ -235,10 +235,10 @@ static std::string buildHttpResponse(int status, const std::string& body) {
 		oss << "HTTP/1.1 404 Not Found\r\n";
 	
 	oss << "Content-Type: text/html; charset=utf-8\r\n";
-    oss << "Content-Length: " << body.size() << "\r\n";
-    oss << "Connection: close\r\n";
-    oss << "\r\n";
-    oss << body;
+	oss << "Content-Length: " << body.size() << "\r\n";
+	oss << "Connection: close\r\n";
+	oss << "\r\n";
+	oss << body;
 
 	return oss.str();
 }
