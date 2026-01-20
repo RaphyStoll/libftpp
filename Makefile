@@ -10,7 +10,7 @@ INCFLAGS    = -I include -I $(LIBFT_DIR)/include
 SRC_DIR     = src
 OBJ_DIR     = obj
 
-SRCS        = $(wildcard $(SRC_DIR)/*.cpp)
+SRCS        = $(shell find $(SRC_DIR) -name "*.cpp")
 OBJS        = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 DEPS        = $(OBJS:.o=.d)
 
@@ -38,7 +38,7 @@ $(NAME): $(LIBFT_A) $(OBJS)
 	$(CPP) $(CPPFLAGS) $(OBJS) $(LIBFT_A) -o $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(CPP) $(CPPFLAGS) $(INCFLAGS) -c $< -o $@
 
 $(LIBFT_A):
