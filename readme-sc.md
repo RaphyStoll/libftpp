@@ -111,3 +111,8 @@ detecter le type de requete/donnée -> parse en fonction
 
 
 1945 : a partir du chap 4 giga important
+
+
+c++ -std=c++98 -Wall -Wextra -Werror -I./include \
+9;10u  Src/Request.cpp src/RequestParser.cpp src/testRequest.cpp \
+  -o test_parser && ./test_parser
