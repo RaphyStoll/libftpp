@@ -44,3 +44,4 @@ Makefile*
 #output
 miniserv
 webserv
+test_parser
