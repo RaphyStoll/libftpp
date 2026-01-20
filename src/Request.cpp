@@ -3,7 +3,7 @@
 namespace http
 {
 
-  Request::Request() : _method(""), _path(""), _version(""), _body("") {}
+  Request::Request() : _method(""), _path(""), _body("") {}
 
   Request::~Request() {}
 
@@ -17,7 +17,6 @@ namespace http
 
   std::string Request::getMethod() const { return _method; }
   std::string Request::getPath() const { return _path; }
-  std::string Request::getBody() const { return _body; }
 
   void Request::setMethod(const std::string &method) { _method = method; }
   void Request::setPath(const std::string &path) { _path = path; }

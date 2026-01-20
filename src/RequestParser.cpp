@@ -107,4 +107,4 @@ namespace http
 	{
 		return _request;
 	}
-}
+} // namespace http
