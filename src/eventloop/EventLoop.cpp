@@ -9,11 +9,13 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+
+
 using namespace libftpp::net;
 using namespace webserv;
 
 	EventLoop::EventLoop(const std::vector<int>& listen_sockets) 
-		: _listen_sockets(listen_sockets) {
+		: _logger("EventLoop"), _listen_sockets(listen_sockets) {
 		_setup_initial_poll_fds();
 	}
 
@@ -129,12 +131,23 @@ using namespace webserv;
 				http::Request& req = parser.getRequest();
 				std::cout << "Method: " << req.getMethod() << " Path: " << req.getPath() << std::endl;
 				
-				// TODO: Traitement de la requête et envoi de la réponse
-				
-				// actuellement on ferme après une requête (HTTP/1.0) (plus simple)
-				// on reset le parser pour keep-alive (HTTP/1.1) plus tard
-				 _close_connection(client_fd, poll_index);
-				 
+				switch (EventLoop::toEnum(req.getMethod())) {
+					case GET:
+						runGetMethod(parser.getRequest());
+						break;
+					case DELET:
+						runDeletMethod(parser.getRequest());
+						break;
+					case POST:
+						runPostMethod(parser.getRequest());
+						break;
+					case ERROR:
+						std::cout << "Method: " << req.getMethod() << "not supported" << std::endl;
+				}
+				// actuellement je ferme après une requête (HTTP/1.0) (plus simple)
+				// si 1.1 reset le parser pour keep-alive (HTTP/1.1) plus tard
+				_close_connection(client_fd, poll_index);
+
 			} else if (state == http::RequestParser::ERROR) {
 				std::cerr << "[EventLoop] Parsing error on fd " << client_fd << std::endl;
 				_close_connection(client_fd, poll_index);

@@ -5,9 +5,14 @@
 # include <poll.h>
 # include <map>
 # include "RequestParser.hpp"
+# include "Request.hpp"
+# include "../lib/LIBFTPP/include/libftpp.hpp"
 
+
+enum Method { ERROR, GET, DELET, POST };
 namespace webserv {
-
+	
+	
 	/**
 	 * @brief Gestionnaire principal de la boucle d'événements (Reactor Pattern
 	 * 
@@ -24,6 +29,8 @@ namespace webserv {
 			void run();
 
 		private:
+			libftpp::debug::DebugLogger _logger;
+			
 			std::vector<int> _listen_sockets;
 			
 			// Le tableau de structures pour poll()
@@ -40,7 +47,19 @@ namespace webserv {
 			void _accept_new_connection(int listen_fd);
 			void _handle_client_data(int client_fd, size_t poll_index);
 			void _close_connection(int fd, size_t poll_index);
-	};
+
+			//======  helper  ======
+
+			// transforme la RequestParser::Request std::string _method
+			// en enum GET, DELET, POST pour switch
+			
+			bool runGetMethod(const http::Request &req);
+			bool runDeletMethod(const http::Request &req);
+			bool runPostMethod(const http::Request &req);
+			Method toEnum(const std::string &s);
+		};
 }
+
+
 
 #endif

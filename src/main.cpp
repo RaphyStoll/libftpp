@@ -8,8 +8,8 @@
 
 using namespace webserv;
 
-// //tmp
-// NetworkConfig parseConfig(const std::string& config_file) {
+//tmp
+// NetworkConfig mapConfig(const std::string& config_file) {
 // 	(void)config_file; //argv qui est le pathg du cofig file
 // 	NetworkConfig config;
 
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 		data.config_path = argv[1];
 	}
 	try {
-	
+
 		std::cout << "[Main] Loading configuration from " << data.config_path << "..." << std::endl;
 		openFileAndParseConfig(&data);
 
@@ -61,6 +61,5 @@ int main(int argc, char** argv) {
 		std::cerr << "Fatal Error: " << e.what() << std::endl;
 		return 1;
 	}
-
 	return 0;
 }
