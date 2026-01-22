@@ -1,5 +1,4 @@
-#ifndef CONFIG_HPP
-# define CONFIG_HPP
+#pragma once
 
 /**
  * @file config.hpp
@@ -14,4 +13,3 @@
 # define DEBUG 1
 #endif
 
-#endif
