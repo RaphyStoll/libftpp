@@ -2,8 +2,6 @@
 
 void dir_server(DataConfig *data)
 {
-	
-
 	std::vector<std::string> token = data->token;
 	size_t i = data->i;
 
@@ -20,6 +18,10 @@ void dir_server(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+		if (valid_ipv4(data) == -1)
+			throw std::runtime_error("ipv4 adress ko : " + data->currentToken);
+			//std::cout << token[i] << " KO" << std::endl;
 		data->currentServer.listen = token[i];
 		i++;
 	}
@@ -28,7 +30,10 @@ void dir_server(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
-		data->currentServer.port = libftpp::str::StringUtils::stoi(token[i]); //SDU :trop long
+
+		data->currentToken = token[i];
+		valid_port(data);
+		data->currentServer.port = libftpp::str::StringUtils::stoi(token[i]);
 		i++;
 	}
 	else if(token[i] == "root")
@@ -36,6 +41,8 @@ void dir_server(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+		valid_path(data);
 		data->currentServer.root = token[i];
 		i++;
 	}
@@ -44,6 +51,8 @@ void dir_server(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+		valid_path(data);
 		data->currentServer.index = token[i];
 		i++;
 	}
@@ -52,6 +61,8 @@ void dir_server(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+		valid_max_body_size(data);
 		data->currentServer.max_body_size = libftpp::str::StringUtils::stoi(token[i]);
 		i++;
 	}
@@ -61,6 +72,10 @@ void dir_server(DataConfig *data)
 		if(i + 1 >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
 		size_t n = libftpp::str::StringUtils::stoi(token[i]);
+		data->currentToken = token[i];
+		valid_error_code(data);
+		data->currentToken = token[i + 1];
+		valid_path(data);
 		data->currentServer.error_pages.insert(std::make_pair(n,token[i + 1]));
 		i+=2;
 	}
@@ -72,18 +87,6 @@ void dir_server(DataConfig *data)
 	data->i = i;
 }
 
-/*
-	std::string path;
-	std::string root;
-	std::vector<std::string> methods;
-	bool directory_listing;
-	bool upload;
-	std::string upload_path;
-	bool cgi;
-	std::string cgi_extension;
-	std::string cgi_path;
-*/
-
 void dir_route(DataConfig *data)
 {
 	
@@ -91,19 +94,13 @@ void dir_route(DataConfig *data)
 	std::vector<std::string> token = data->token;
 	size_t i = data->i;
 
-	if(token[i] == "path")
+	if(token[i] == "root")
 	{
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
-		data->currentRoute.path = token[i];
-		i++;
-	}
-	else if(token[i] == "root")
-	{
-		i++;
-		if(i >= token.size())
-			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+		valid_path(data);
 		data->currentRoute.root = token[i];
 		i++;
 	}
@@ -149,6 +146,8 @@ void dir_route(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+		valid_path(data);
 		data->currentRoute.upload_path = token[i];
 		i++;
 	}
@@ -178,6 +177,8 @@ void dir_route(DataConfig *data)
 		i++;
 		if(i >= token.size())
 			throw std::out_of_range("Acces token : " + token[i-1]);
+		data->currentToken = token[i];
+//		valid_path(data); //SDU chiant pour les test, a remettre.
 		data->currentRoute.cgi_path = token[i];
 		i++;
 	}
@@ -189,6 +190,7 @@ void dir_route(DataConfig *data)
 		size_t n = libftpp::str::StringUtils::stoi(token[i]);
 		data->currentRoute.redirect.insert(std::make_pair(n,token[i + 1]));
 		i+=2;
+		//completer les verif de doublons et compagnie si besoin
 	}
 	else
 		throw std::runtime_error("Unknow route directive : " +  token[i]);

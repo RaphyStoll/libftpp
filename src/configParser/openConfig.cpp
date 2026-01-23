@@ -62,7 +62,7 @@ static void pars_state(DataConfig *data)
 	data->i = 0;
 	data->state = GLOBAL;
 	std::vector<std::string> token = data-> token;
-	std::cout << "token.size = " << token.size() << std::endl;
+//	std::cout << "token.size = " << token.size() << std::endl;
 
 	while(data->i < token.size())
 	{
