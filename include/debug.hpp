@@ -2,6 +2,8 @@
 
 #include "config.hpp"
 #include <string>
+#include <sstream>
+#include <iostream>
 
 namespace libftpp {
 namespace debug {
@@ -9,14 +11,14 @@ namespace debug {
 /**
  * @brief Classe simple pour gérer un fichier de log
  *
- * Chaque instance représente un fichier de log. À la création le fichier
- * est effacé (mode trunc), les appels successifs à `log()` ajoutent des lignes
- * à la fin du fichier (mode append). La méthode `clear()` permet d'effacer
- * explicitement le contenu du fichier.
+ * Supporte désormais l'opérateur de flux <<.
+ * Usage: logger << "Message " << 123 << std::endl;
+ * Le fichier est écrit uniquement lors de l'appel à std::endl.
  */
 class DebugLogger {
 	private:
 		std::string _filename;
+		std::stringstream _ss;
 
 	public:
 		/**
@@ -24,27 +26,36 @@ class DebugLogger {
 		 * @param filename nom du fichier de log
 		 */
 		DebugLogger(const std::string& filename);
-
-		// @brief Destructeur
 		~DebugLogger();
 		
-		/**
-		 * @brief Ajoute un message dans le fichier de log (append)
-		 * @param message message à écrire
-		 */
 		void log(const std::string& message);
-
-		// Efface le contenu du fichier de log (mode trunc)
 		void clear();
 		
-		/**
-		 * @brief Méthode statique pour écrire dans le fichier global `debug.log`
-		 *
-		 * À la première utilisation le fichier est effacé, puis les appels
-		 * suivants ajoutent des lignes en fin de fichier.
-		 * @param message message à écrire
-		 */
 		static void debug(const std::string& message);
+
+		// Template pour gérer tous les types (int, string, etc.)
+		template <typename T>
+		DebugLogger& operator<<(const T& value) {
+			#ifdef DEBUG
+				_ss << value;
+			#endif
+			return *this;
+		}
+
+		// Surcharge pour gérer std::endl
+		// Cela permet: logger << "msg" << std::endl; (qui déclenche l'écriture dans le fichier)
+		DebugLogger& operator<<(std::ostream& (*manip)(std::ostream&)) {
+			#ifdef DEBUG
+				if (manip == (std::ostream& (*)(std::ostream&))std::endl) {
+					this->log(_ss.str());
+					_ss.str("");   // Vider le buffer
+					_ss.clear();   // Réinitialiser les flags d'erreur
+				} else {
+					_ss << manip;
+				}
+			#endif
+			return *this;
+		}
 };
 
 /**
