@@ -40,6 +40,7 @@ Makefile*
 #randfile
 .history
 *.log
+*.progress
 
 #output
 miniserv

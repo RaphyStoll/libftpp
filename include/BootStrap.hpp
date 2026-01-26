@@ -27,9 +27,9 @@ namespace webserv {
 			NetworkConfig _config;
 			std::vector<int> _listen_sockets;
 			void _setup_sockets();
+			int create_listener_socket(int port, const std::string& host);
 	};
 
-	int create_listener_socket(int port, const std::string& host);
 }
 
 #endif
