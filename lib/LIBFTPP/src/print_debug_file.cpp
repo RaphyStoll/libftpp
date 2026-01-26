@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 /**
  * @brief Constructeur de la classe DebugLogger
@@ -12,8 +14,19 @@
  *
  * @param filename nom du fichier de log
  */
-libftpp::debug::DebugLogger::DebugLogger(const std::string& filename) 
-	: _filename(filename) {
+libftpp::debug::DebugLogger::DebugLogger(const std::string& filename) {
+	std::string name = filename;
+	// Ajouter .log si absent
+	if (name.length() < 4 || name.substr(name.length() - 4) != ".log")
+		name += ".log";
+
+	// Créer le dossier log s'il n'existe pas
+	struct stat st;
+	if (stat("log", &st) != 0)
+		mkdir("log", 0600);
+
+	_filename = "log/" + name;
+
 	#ifdef DEBUG
 		// Effacer le fichier à la création du logger
 		std::ofstream outfile(_filename.c_str(), std::ios::trunc);
