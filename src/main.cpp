@@ -1,6 +1,8 @@
 #include "../include/BootStrap.hpp"
 #include "../include/Config.hpp"
 #include "../include/ConfigParser.hpp"
+#include "../include/EventLoop.hpp"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -54,9 +56,13 @@ int main(int argc, char** argv) {
 		NetworkConfig net_config = mapConfig(&data);
 
 		_logger << "[Main] Config loaded. Initializing BootStrap..." << std::endl;
-		BootStrap<NetworkConfig> server1(net_config);
+		BootStrap server1(net_config);
 
 		server1.start();
+		
+		// Note: Il faudra ajouter la config au constructeur d'EventLoop
+		EventLoop loop(server1.getListenSockets(), net_config);
+		loop.run();
 
 	} catch (const std::exception& e) {
 		std::cerr << "Fatal Error: " << e.what() << std::endl;

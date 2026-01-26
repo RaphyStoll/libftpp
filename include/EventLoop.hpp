@@ -1,12 +1,15 @@
 #ifndef EVENTLOOP_HPP
 # define EVENTLOOP_HPP
 
-# include <vector>
-# include <poll.h>
-# include <map>
+# include "../lib/LIBFTPP/include/libftpp.hpp"
 # include "RequestParser.hpp"
 # include "Request.hpp"
-# include "../lib/LIBFTPP/include/libftpp.hpp"
+
+# include <vector>
+# include <map>
+
+# include <poll.h>
+# include "Config.hpp"
 
 
 enum Method { ERROR, GET, DELET, POST };
@@ -22,7 +25,7 @@ namespace webserv {
 	 */
 	class EventLoop {
 		public:
-			EventLoop(const std::vector<int>& listen_sockets);
+			EventLoop(const std::vector<int>& listen_sockets, const NetworkConfig& config);
 			~EventLoop();
 
 			// Boucle principale
@@ -30,6 +33,7 @@ namespace webserv {
 
 		private:
 			libftpp::debug::DebugLogger _logger;
+			NetworkConfig _config;
 			
 			std::vector<int> _listen_sockets;
 			

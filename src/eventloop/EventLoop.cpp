@@ -15,8 +15,8 @@
 using namespace libftpp::net;
 using namespace webserv;
 
-	EventLoop::EventLoop(const std::vector<int>& listen_sockets) 
-		: _logger("EventLoop"), _listen_sockets(listen_sockets) {
+	EventLoop::EventLoop(const std::vector<int>& listen_sockets, const NetworkConfig& config) 
+		: _logger("EventLoop"), _config(config), _listen_sockets(listen_sockets) {
 		_setup_initial_poll_fds();
 	}
 
