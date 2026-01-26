@@ -65,6 +65,10 @@ ifeq ($(SRCS),$(wildcard *.cpp))
     OBJS_SHARED = $(patsubst %.cpp,$(OBJ_DIR_SHARED)/%.o,$(SRCS))
 endif
 
+TOTAL_OBJS  = $(words $(SRCS))
+PROGRESS_FILE = $(OBJ_DIR)/.progress
+PROGBAR_LEN = 40
+
 # Couleurs
 GREEN = \033[0;32m
 BLUE = \033[0;34m
@@ -82,41 +86,75 @@ all: static dev
 static: $(STATIC_LIB)
 
 $(STATIC_LIB): $(OBJS_STATIC)
-	@echo "$(BLUE)Creating static library $(STATIC_LIB)...$(NC)"
+	@echo "$(GREEN)[libftpp] Static objects compiled!$(NC)"
+	@echo "$(BLUE)Archiving $(STATIC_LIB)...$(NC)"
 	@ar rcs $(STATIC_LIB) $(OBJS_STATIC)
-	@echo "$(GREEN)✓ Static library $(STATIC_LIB) created successfully!$(NC)"
+	@echo "$(GREEN)Static lib is DONE$(NC)"
 
 # Compilation bibliothèque dynamique
 dev: $(SHARED_LIB)
 
 $(SHARED_LIB): $(OBJS_SHARED)
-	@echo "$(BLUE)Creating shared library $(SHARED_LIB)...$(NC)"
+	@echo "$(GREEN)[libftpp] Shared objects compiled!$(NC)"
+	@echo "$(BLUE)Linking $(SHARED_LIB)...$(NC)"
 	@$(CXX) $(SHARED_FLAGS) -o $(SHARED_LIB) $(OBJS_SHARED)
-	@echo "$(GREEN)✓ Shared library $(SHARED_LIB) created successfully!$(NC)"
+	@echo "$(GREEN)Shared lib is DONE$(NC)"
 
 # Compilation des objets statiques
 $(OBJ_DIR_STATIC)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	@echo "$(YELLOW)Compiling (static): $<$(NC)"
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@count=$$(cat $(PROGRESS_FILE) 2>/dev/null || echo 0); \
+	total=$(TOTAL_OBJS); [ $$total -le 0 ] && total=1; \
+	[ $$count -ge $$total ] && count=0; \
+	count=$$((count+1)); echo $$count > $(PROGRESS_FILE); \
+	percent=$$(( (count*100)/total )); \
+	bar_len=$(PROGBAR_LEN); filled=$$(( (percent*bar_len)/100 )); \
+	bar=""; i=0; while [ $$i -lt $$filled ]; do bar="$$bar#"; i=$$((i+1)); done; \
+	printf "\r[%-*s] %3d%% (%d/%d) Compiling (static): %s" $$bar_len "$$bar" $$percent $$count $$total "$<"; \
+	[ $$count -eq $$total ] && printf "\n" || true
 
 # Cas où les sources sont à la racine
 $(OBJ_DIR_STATIC)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@echo "$(YELLOW)Compiling (static): $<$(NC)"
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@count=$$(cat $(PROGRESS_FILE) 2>/dev/null || echo 0); \
+	total=$(TOTAL_OBJS); [ $$total -le 0 ] && total=1; \
+	[ $$count -ge $$total ] && count=0; \
+	count=$$((count+1)); echo $$count > $(PROGRESS_FILE); \
+	percent=$$(( (count*100)/total )); \
+	bar_len=$(PROGBAR_LEN); filled=$$(( (percent*bar_len)/100 )); \
+	bar=""; i=0; while [ $$i -lt $$filled ]; do bar="$$bar#"; i=$$((i+1)); done; \
+	printf "\r[%-*s] %3d%% (%d/%d) Compiling (static): %s" $$bar_len "$$bar" $$percent $$count $$total "$<"; \
+	[ $$count -eq $$total ] && printf "\n" || true
 
 # Compilation des objets dynamiques
 $(OBJ_DIR_SHARED)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	@echo "$(YELLOW)Compiling (shared): $<$(NC)"
 	@$(CXX) $(CXXFLAGS_SHARED) -c $< -o $@
+	@count=$$(cat $(PROGRESS_FILE) 2>/dev/null || echo 0); \
+	total=$(TOTAL_OBJS); [ $$total -le 0 ] && total=1; \
+	[ $$count -ge $$total ] && count=0; \
+	count=$$((count+1)); echo $$count > $(PROGRESS_FILE); \
+	percent=$$(( (count*100)/total )); \
+	bar_len=$(PROGBAR_LEN); filled=$$(( (percent*bar_len)/100 )); \
+	bar=""; i=0; while [ $$i -lt $$filled ]; do bar="$$bar#"; i=$$((i+1)); done; \
+	printf "\r[%-*s] %3d%% (%d/%d) Compiling (shared): %s" $$bar_len "$$bar" $$percent $$count $$total "$<"; \
+	[ $$count -eq $$total ] && printf "\n" || true
 
 # Cas où les sources sont à la racine
 $(OBJ_DIR_SHARED)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@echo "$(YELLOW)Compiling (shared): $<$(NC)"
 	@$(CXX) $(CXXFLAGS_SHARED) -c $< -o $@
+	@count=$$(cat $(PROGRESS_FILE) 2>/dev/null || echo 0); \
+	total=$(TOTAL_OBJS); [ $$total -le 0 ] && total=1; \
+	[ $$count -ge $$total ] && count=0; \
+	count=$$((count+1)); echo $$count > $(PROGRESS_FILE); \
+	percent=$$(( (count*100)/total )); \
+	bar_len=$(PROGBAR_LEN); filled=$$(( (percent*bar_len)/100 )); \
+	bar=""; i=0; while [ $$i -lt $$filled ]; do bar="$$bar#"; i=$$((i+1)); done; \
+	printf "\r[%-*s] %3d%% (%d/%d) Compiling (shared): %s" $$bar_len "$$bar" $$percent $$count $$total "$<"; \
+	[ $$count -eq $$total ] && printf "\n" || true
 
 # Nettoyage des objets
 clean:
