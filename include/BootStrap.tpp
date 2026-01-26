@@ -1,6 +1,6 @@
 # pragma once
 
-# include "../lib/LIBFTPP/include/Net.hpp"
+# include "../lib/LIBFTPP/include/libftpp.hpp"
 # include "BootStrap.hpp"
 # include "EventLoop.hpp"
 
@@ -19,16 +19,16 @@ namespace webserv {
 
 	template <typename TConfig>
 	void BootStrap<TConfig>::start() {
-		std::cout << "[BootStrap] Starting server initialization..." << std::endl;
+		_logger << "[BootStrap] Starting server initialization..." << std::endl;
 
 		try {
 			_setup_sockets();
 		} catch (const std::exception& e) {
-			std::cerr << "[BootStrap] Error during socket setup: " << e.what() << std::endl;
+			_logger << "[BootStrap] Error during socket setup: " << e.what() << std::endl;
 			throw; 
 		}
 
-		std::cout << "[BootStrap] Sockets ready. Launching EventLoop..." << std::endl;
+		_logger << "[BootStrap] Sockets ready. Launching EventLoop..." << std::endl;
 
 		// TODO: Ici EventLoop
 		EventLoop loop(_listen_sockets);
@@ -45,7 +45,12 @@ namespace webserv {
 			int sock_fd = create_listener_socket(port);
 			_listen_sockets.push_back(sock_fd);
 
-			std::cout << "[BootStrap] Listening on port " << port << " (fd: " << sock_fd << ")" << std::endl;
+			// Récupération de l'hôte depuis la première configuration serveur pour ce port
+			std::string host = it->second.front().listen;
+			if (host.empty())
+				host = "0.0.0.0";
+				
+			_logger << "[BootStrap] Listening on http://" << host << ":" << port << " (fd: " << sock_fd << ")" << std::endl;
 		}
 	}
 }
