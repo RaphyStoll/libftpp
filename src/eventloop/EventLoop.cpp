@@ -37,14 +37,14 @@ using namespace webserv;
 	}
 
 	void EventLoop::run() {
-		std::cout << "[EventLoop] Entering main loop with " << _poll_fds.size() << " monitored fds." << std::endl;
+		_logger << "[EventLoop] Entering main loop with " << _poll_fds.size() << " monitored fds." << std::endl;
 
 		while (true) {
 			int ret = poll(&_poll_fds[0], _poll_fds.size(), -1);
 			
 			if (ret < 0) {
 				if (errno == EINTR) continue;
-				std::cerr << "[EventLoop] poll error: " << strerror(errno) << std::endl;
+				_logger << "[EventLoop] poll error: " << strerror(errno) << std::endl;
 				break;
 			}
 
@@ -92,12 +92,12 @@ using namespace webserv;
 		
 		int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &addr_len);
 		if (client_fd < 0) {
-			std::cerr << "[EventLoop] accept failed: " << strerror(errno) << std::endl;
+			_logger << "[EventLoop] accept failed: " << strerror(errno) << std::endl;
 			return;
 		}
 
 		if (!libftpp::net::set_non_blocking(client_fd)) {
-			std::cerr << "[EventLoop] Failed to set client non-blocking" << std::endl;
+			_logger << "[EventLoop] Failed to set client non-blocking" << std::endl;
 			close(client_fd);
 			return;
 		}
@@ -110,7 +110,7 @@ using namespace webserv;
 
 		_client_parsers[client_fd] = http::RequestParser();
 
-		std::cout << "[EventLoop] New connection accepted (fd: " << client_fd << ")" << std::endl;
+		_logger << "[EventLoop] New connection accepted (fd: " << client_fd << ")" << std::endl;
 	}
 
 	void EventLoop::_handle_client_data(int client_fd, size_t poll_index) {
@@ -118,38 +118,44 @@ using namespace webserv;
 		ssize_t bytes = read(client_fd, buffer, sizeof(buffer));
 
 		if (bytes < 0) {
-			std::cerr << "[EventLoop] read error on fd " << client_fd << ": " << strerror(errno) << std::endl;
+			_logger << "[EventLoop] read error on fd " << client_fd << ": " << strerror(errno) << std::endl;
 			_close_connection(client_fd, poll_index);
 		} else if (bytes == 0) {
-			std::cout << "[EventLoop] Client disconnected (fd: " << client_fd << ")" << std::endl;
+			_logger << "[EventLoop] Client disconnected (fd: " << client_fd << ")" << std::endl;
 			_close_connection(client_fd, poll_index);
 		} else {
 			http::RequestParser& parser = _client_parsers[client_fd];
 			http::RequestParser::State state = parser.parse(buffer, bytes);
 			if (state == http::RequestParser::COMPLETE) {
-				std::cout << "[EventLoop] Request complete on fd " << client_fd << std::endl;
+				_logger << "[EventLoop] Request complete on fd " << client_fd << std::endl;
 				http::Request& req = parser.getRequest();
-				std::cout << "Method: " << req.getMethod() << " Path: " << req.getPath() << std::endl;
+				_logger << "Method: " << req.getMethod() << " Path: " << req.getPath() << std::endl;
 				
+				std::string responseData;
+
 				switch (EventLoop::toEnum(req.getMethod())) {
 					case GET:
-						runGetMethod(parser.getRequest());
+						responseData=runGetMethod(parser.getRequest());
 						break;
 					case DELET:
-						runDeletMethod(parser.getRequest());
+						responseData=runDeletMethod(parser.getRequest());
 						break;
 					case POST:
-						runPostMethod(parser.getRequest());
+						responseData=runPostMethod(parser.getRequest());
 						break;
 					case ERROR:
-						std::cout << "Method: " << req.getMethod() << "not supported" << std::endl;
+						_logger << "Method: " << req.getMethod() << "not supported" << std::endl;
 				}
+
+				if (!responseData.empty())
+					send(client_fd, responseData.c_str(), responseData.length(), 0);
+				
 				// actuellement je ferme après une requête (HTTP/1.0) (plus simple)
 				// si 1.1 reset le parser pour keep-alive (HTTP/1.1) plus tard
 				_close_connection(client_fd, poll_index);
 
 			} else if (state == http::RequestParser::ERROR) {
-				std::cerr << "[EventLoop] Parsing error on fd " << client_fd << std::endl;
+				_logger << "[EventLoop] Parsing error on fd " << client_fd << std::endl;
 				_close_connection(client_fd, poll_index);
 			}
 			// Si PARSING, on attend les prochaines données sans rien faire
@@ -164,5 +170,5 @@ using namespace webserv;
 		}
 		_poll_fds.pop_back();
 		_client_parsers.erase(fd);
-		std::cout << "[EventLoop] Connection closed (fd: " << fd << ")" << std::endl;
+		_logger << "[EventLoop] Connection closed (fd: " << fd << ")" << std::endl;
 	}

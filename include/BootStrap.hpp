@@ -4,6 +4,8 @@
 # include <vector>
 # include <iostream>
 
+# include "../lib/LIBFTPP/include/libftpp.hpp"
+
 namespace webserv {
 
 	/**
@@ -16,12 +18,13 @@ namespace webserv {
 	template <typename TConfig>
 	class BootStrap {
 		public:
-			BootStrap(const TConfig& par_config) : _config(par_config) {}
+			BootStrap(const TConfig& par_config) : _logger("BootStrap"), _config(par_config) {}
 			~BootStrap() {}
 
 			void start();
 
 		private:
+			libftpp::debug::DebugLogger _logger;
 			TConfig _config;
 			std::vector<int> _listen_sockets;
 			void _setup_sockets();
