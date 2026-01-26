@@ -29,7 +29,7 @@ namespace webserv {
 			void _setup_sockets();
 	};
 
-	int create_listener_socket(int port);
+	int create_listener_socket(int port, const std::string& host);
 }
 
 #endif
