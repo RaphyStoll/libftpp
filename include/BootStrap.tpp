@@ -50,7 +50,7 @@ namespace webserv {
 			if (host.empty())
 				host = "0.0.0.0";
 				
-			_logger << "[BootStrap] Listening on http://" << host << ":" << port << " (fd: " << sock_fd << ")" << std::endl;
+			std::cout << "Listening on http://" << host << ":" << port << " (fd: " << sock_fd << ")" << std::endl;
 		}
 	}
 }
