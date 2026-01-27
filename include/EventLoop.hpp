@@ -68,6 +68,7 @@ namespace webserv {
 			const ServerConfig& _getServerConfig(int client_fd, const http::Request& req);
 			std::string getContentType(const std::string& path);
 			std::string readFile(const std::string& path);
+			std::string _generateErrorResponse(int code, const std::string& msg, const ServerConfig& config);
 		};
 }
 

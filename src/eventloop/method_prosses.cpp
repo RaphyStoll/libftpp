@@ -41,10 +41,7 @@ std::string EventLoop::runGetMethod(const http::Request &req, const ServerConfig
 
 	struct stat s;
 	if (::stat(fullPath.c_str(), &s) != 0) {
-		std::string body = "<html><body><h1>404 Not Found</h1></body></html>";
-		std::ostringstream response;
-		response << "HTTP/1.1 404 Not Found\r\nContent-Length: " << body.length() << "\r\n\r\n" << body;
-		return response.str();
+		return _generateErrorResponse(404, "Not Found", config);
 	}
 
 	if (s.st_mode & S_IFDIR) {
@@ -52,18 +49,12 @@ std::string EventLoop::runGetMethod(const http::Request &req, const ServerConfig
 		fullPath += "index.html";
 
 		if (::stat(fullPath.c_str(), &s) != 0) {
-			std::string body = "<html><body><h1>403 Forbidden (No Index)</h1></body></html>";
-			std::ostringstream response;
-			response << "HTTP/1.1 403 Forbidden\r\nContent-Length: " << body.length() << "\r\n\r\n" << body;
-			return response.str();
+			return _generateErrorResponse(403, "Forbidden", config);
 		}
 	}
 
 	if (::access(fullPath.c_str(), R_OK) != 0) {
-		std::string body = "<html><body><h1>403 Forbidden</h1></body></html>";
-		std::ostringstream response;
-		response << "HTTP/1.1 403 Forbidden\r\nContent-Length: " << body.length() << "\r\n\r\n" << body;
-		return response.str();
+		return _generateErrorResponse(403, "Forbidden", config);
 	}
 
 	std::string content = readFile(fullPath);

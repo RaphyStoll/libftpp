@@ -49,17 +49,9 @@ void EventLoop::_handle_client_data(int client_fd, size_t poll_index) {
 					responseData = runPostMethod(req, srvConfig);
 					break;
 				case ERROR:
-				{
-					std::string body = "<html><body><h1>501 Not Implemented</h1></body></html>";
-					std::ostringstream oss;
-					oss << "HTTP/1.1 501 Not Implemented\r\n";
-					oss << "Content-Type: text/html\r\n";
-					oss << "Content-Length: " << body.length() << "\r\n";
-					oss << "\r\n";
-					oss << body;
-					responseData = oss.str();
+					responseData = _generateErrorResponse(501, "Not Implemented", srvConfig);
 					_logger << "Method: " << req.getMethod() << " not supported" << std::endl;
-				}
+					break;
 			}
 
 			if (!responseData.empty())
