@@ -25,7 +25,7 @@ int BootStrap::create_listener_socket(int port, const std::string& host) {
 	}
 
 	if (!set_reuseaddr(sockfd)) {
-		close(sockfd);
+		::close(sockfd);
 		throw std::runtime_error("set_reuseaddr() failed");
 	}
 
