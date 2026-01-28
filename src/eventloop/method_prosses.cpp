@@ -46,7 +46,7 @@ std::string EventLoop::_runGetMethod(const http::Request &req, const ServerConfi
 
 	if (s.st_mode & S_IFDIR) {
 		if (fullPath[fullPath.size() - 1] != '/') fullPath += "/";
-		fullPath += "index.html";
+			fullPath += "index.html";
 
 		if (::stat(fullPath.c_str(), &s) != 0) {
 			return _generateErrorResponse(403, "Forbidden", config);
@@ -64,7 +64,7 @@ std::string EventLoop::_runGetMethod(const http::Request &req, const ServerConfi
 	response << "HTTP/1.1 200 OK\r\n";
 	response << "Content-Type: " << mimeType << "\r\n";
 	response << "Content-Length: " << content.length() << "\r\n";
-	response << "Connection: close\r\n"; 
+	response << "Connection: close\r\n";
 	response << "\r\n";
 	response << content;
 

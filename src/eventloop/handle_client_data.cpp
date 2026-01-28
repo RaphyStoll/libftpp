@@ -27,6 +27,7 @@ void EventLoop::_handle_client_data(int client_fd, size_t poll_index) {
 		_close_connection(client_fd, poll_index);
 	} else {
 		http::RequestParser& parser = _client_parsers[client_fd];
+		//std::cout << buffer << std::endl;
 		http::RequestParser::State state = parser.parse(buffer, bytes);
 		if (state == http::RequestParser::COMPLETE) {
 			_logger << "[EventLoop] Request complete on fd " << client_fd << std::endl;
