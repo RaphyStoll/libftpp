@@ -114,7 +114,7 @@ using namespace webserv;
 	}
 
 	void EventLoop::_handle_client_data(int client_fd, size_t poll_index) {
-		char buffer[4096];
+		char buffer[4096];//SDU en dur?
 		ssize_t bytes = read(client_fd, buffer, sizeof(buffer));
 
 		if (bytes < 0) {
@@ -128,11 +128,12 @@ using namespace webserv;
 			http::RequestParser::State state = parser.parse(buffer, bytes);
 			if (state == http::RequestParser::COMPLETE) {
 				std::cout << "[EventLoop] Request complete on fd " << client_fd << std::endl;
-				http::Request& req = parser.getRequest();
+				http::Request& req = parser.getRequest();//SDU paart chez seb?
 				std::cout << "Method: " << req.getMethod() << " Path: " << req.getPath() << std::endl;
 				
 				switch (EventLoop::toEnum(req.getMethod())) {
 					case GET:
+						std::cout << ("runGetMethod case ok") << std::endl;//SDU
 						runGetMethod(parser.getRequest());
 						break;
 					case DELET:
