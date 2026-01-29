@@ -10,6 +10,16 @@
 #include <stdexcept>
 
 # include "../lib/LIBFTPP/include/libftpp.hpp"
+
+#define MAX_BODY_SIZE_LIMIT (1024 * 1024)
+#define MIN_BODY_SIZE_LIMIT 0
+#define PORT_MIN 1024
+#define PORT_MAX 65535
+#define ERROR_CODE_MIN 400 //100-400 pour les code non error
+#define ERROR_CODE_MAX 599
+
+
+
 enum ParseState
 {
 	GLOBAL,
@@ -60,6 +70,7 @@ struct DataConfig {
 	ParseState state;
 	ServerConfig currentServer;
 	RouteConfig currentRoute;
+	std::string currentToken;
 	size_t i;
 };
 
@@ -76,5 +87,12 @@ void print_vect(const std::vector<std::string> &vect);
 void print_server (const ServerConfig &serv);
 void print_route (const RouteConfig &route);
 void print_conf (const std::vector<ServerConfig> &serv);
+
+void valid_port(DataConfig *data);
+void valid_max_body_size(DataConfig *data);
+void valid_error_code(DataConfig *data);
+void valid_path(DataConfig *data);
+int valid_ipv4(DataConfig *data);
+
 
 #endif

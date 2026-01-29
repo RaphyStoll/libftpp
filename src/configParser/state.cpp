@@ -7,13 +7,13 @@ void state_global(DataConfig *data)
 
 	if(i + 1 < token.size() && token[i] == "server" && token[i + 1] == "{")
 	{
-//		std::cout << "in server 1" << std::endl;
+	//	std::cout << "in server 1" << std::endl;
 		data->state = IN_SERVER;
 		data->currentServer = ServerConfig();
 		i += 2;
 	}
 	else
-		throw std::runtime_error("Invalid directive");
+		throw std::runtime_error("Invalid global directive : " + token[i]);
 	data->i = i;
 }
 
@@ -34,6 +34,8 @@ void state_server(DataConfig *data)
 	{
 		data->state = IN_ROUTE;
 		data->currentRoute = RouteConfig();
+		data->currentToken = token[i + 1];
+//		valid_path(data); //SDU a remettre, mais trop chiant pour les test
 		data->currentRoute.path = token[i+1];
 		i += 3;
 //		std::cout << "in route" << std::endl;
