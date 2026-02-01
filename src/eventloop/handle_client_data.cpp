@@ -33,7 +33,7 @@ void EventLoop::_handle_client_data(int client_fd, size_t poll_index) {
 			http::Request& req = parser.getRequest();
 			_logger << "Method: " << req.getMethod() << " Path: " << req.getPath() << std::endl;
 
-			std::string responseData = NULL;
+			std::string responseData;
 
 			// Sélection du bon Virtual Server
 			const ServerConfig& srvConfig = _getServerConfig(client_fd, req);
