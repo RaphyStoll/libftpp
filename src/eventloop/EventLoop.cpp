@@ -35,7 +35,7 @@ using namespace webserv;
 			
 			if (ret < 0) {
 				if (errno == EINTR) continue;
-				_logger << "[EventLoop] poll error: " << strerror(errno) << std::endl;
+				_logger << "[EventLoop] poll error: " << std::strerror(errno) << std::endl;
 				break;
 			}
 

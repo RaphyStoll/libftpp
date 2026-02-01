@@ -7,12 +7,13 @@
 
 # include <vector>
 # include <map>
+# include <string>
 
 # include <poll.h>
 # include "Config.hpp"
 
 
-enum Method { ERROR, GET, DELET, POST };
+enum Method { ERROR, GET, DELETE, POST };
 namespace webserv {
 	
 	
@@ -42,6 +43,9 @@ namespace webserv {
 
 			// Map pour stocker l'état du parsing pour chaque client (fd -> parser)
 			std::map<int, http::RequestParser> _client_parsers;
+
+			// map pour stocker les buffer de reponse en attente d'etre envoyer (fd -> data a envoyer)
+			std::map<int, std::string> _write_buffers;
 
 			// Initialise le vecteur _poll_fds avec les sockets d'écoute
 			void _setup_initial_poll_fds();

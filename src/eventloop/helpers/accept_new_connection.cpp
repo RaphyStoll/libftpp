@@ -21,7 +21,7 @@ void EventLoop::_accept_new_connection(int listen_fd) {
 	
 	int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &addr_len);
 	if (client_fd < 0) {
-		_logger << "[EventLoop] accept failed: " << strerror(errno) << std::endl;
+		_logger << "[EventLoop] accept failed: " << std::strerror(errno) << std::endl;
 		return;
 	}
 
