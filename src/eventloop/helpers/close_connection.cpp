@@ -23,5 +23,6 @@ void EventLoop::_close_connection(int fd, size_t poll_index) {
 		}
 		_poll_fds.pop_back();
 		_client_parsers.erase(fd);
+		_write_buffers.erase(fd);
 		_logger << "[EventLoop] Connection closed (fd: " << fd << ")" << std::endl;
 	}
