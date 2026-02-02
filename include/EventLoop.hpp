@@ -12,7 +12,7 @@
 # include "Config.hpp"
 
 
-enum Method { ERROR, GET, DELET, POST };
+enum Method { ERROR, GET, DELETE, POST };
 namespace webserv {
 	
 	
@@ -55,10 +55,10 @@ namespace webserv {
 			//======  helper  ======
 
 			// transforme la RequestParser::Request std::string _method
-			// en enum GET, DELET, POST pour switch
+			// en enum GET, DELETE, POST pour switch
 			
 			std::string _runGetMethod(const http::Request &req, const ServerConfig &srvConfig);
-			std::string _runDeletMethod(const http::Request &req, const ServerConfig &srvConfig);
+			std::string _runDeleteMethod(const http::Request &req, const ServerConfig &srvConfig);
 			std::string _runPostMethod(const http::Request &req, const ServerConfig &srvConfig);
 			std::string _runErrorMethod(const http::Request &req, const ServerConfig &srvConfig);
 			

@@ -43,8 +43,8 @@ void EventLoop::_handle_client_data(int client_fd, size_t poll_index) {
 				case GET:
 					responseData = _runGetMethod(req, srvConfig);
 					break;
-				case DELET:
-					responseData = _runDeletMethod(req, srvConfig);
+				case DELETE:
+					responseData = _runDeleteMethod(req, srvConfig);
 					break;
 				case POST:
 					responseData = _runPostMethod(req, srvConfig);

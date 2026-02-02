@@ -45,6 +45,9 @@ int BootStrap::_create_listener_socket(int port, const std::string& host) {
 	}
 	addr.sin_port = htons(port);
 
+	printf("%s:%d\n", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));//SDU
+	//	_logger << inet_ntoa(addr.sin_addr) << " : " << ntohs(addr.sin_port) << std::endl;//SDU
+
 	if (::bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		err = ::strerror(errno);
 		::close(sockfd);

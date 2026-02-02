@@ -71,19 +71,40 @@ std::string EventLoop::_runGetMethod(const http::Request &req, const ServerConfi
 	return response.str();
 }
 
-std::string EventLoop::_runDeletMethod(const http::Request &req, const ServerConfig& config)
+std::string EventLoop::_runDeleteMethod(const http::Request &req, const ServerConfig& config)
 {
-	(void)req;
-	(void)config;
-	std::string body = "<html><body><h1>DELETE method</h1></body></html>";
+//	(void)req;
+//	(void)config;
+
+	std::string root = config.root; 
+	std::string fullPath2 = root + req.getPath();
+	std::string root_r = config.routes[1].root;
+	std::string fullPath = root_r + req.getPath(); //SDU c est faux il faut revoir toute la gestion des path
+
+	//verifier dans la config que DELETE est autorisé
+	//verifier que c est le fichier existe
+	//vrifier que c est pas un dossier
+	//verifier les permissions
+
+	if (unlink(fullPath.c_str()) != 0) {
+		return _generateErrorResponse(500, "Unlink failed", config);
+	}
+
+
+	std::string body = "<html><body><h1>DELETE method</h1></body></html>\r\n";
 
 	std::ostringstream response;
-	response << "HTTP/1.1 200 OK\r\n";
+	response << "HTTP/1.1 201 OK\r\n";
 	response << "Content-Type: text/html\r\n";
 	response << "Content-Length: " << body.length() << "\r\n";
+	response << "root: " << root << "\r\n";
+	response << "root_r: " << root_r << "\r\n";
+	response << "fullPath: " << fullPath << "\r\n";
 	response << "\r\n";
 	response << body;
 	return response.str();
+
+	//curl -i -X DELETE http://localhost:9001/upload/config_KO_1.conf
 }
 
 std::string EventLoop::_runPostMethod(const http::Request &req, const ServerConfig& config)
