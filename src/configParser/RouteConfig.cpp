@@ -12,3 +12,17 @@ RouteConfig::RouteConfig() :
 	cgi_path("")
 {
 }
+
+void RouteConfig::print(void) const
+{
+	std::cout << "  path : " << path << std::endl;
+	std::cout << "  root : " << root << std::endl;
+
+	std::cout << "  methods : ";
+	for(size_t i = 0 ; i < methods.size(); i++)
+		std::cout << methods[i] << " ";
+	std::cout << std::endl;
+
+	std::cout << "  directory_listing : " << directory_listing << std::endl;
+
+}

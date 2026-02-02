@@ -13,11 +13,11 @@ void valid_port(DataConfig *data)
 	int var = libftpp::str::StringUtils::stoi(data->currentToken);
 	if (var < PORT_MIN || var > PORT_MAX)
 		throw std::runtime_error("port out of range : " + data->currentToken);
-	for(size_t i = 0; i < data->servers.size(); i++)
-	{
-		if(data->servers[i].port == var)
-			throw std::runtime_error("port already in use in config : " + data->currentToken);
-	}
+//	for(size_t i = 0; i < data->servers.size(); i++)
+//	{
+//		if(data->servers[i].port == var)
+//			throw std::runtime_error("port already in use in config : " + data->currentToken);
+//	}
 }
 
 void valid_max_body_size(DataConfig *data)

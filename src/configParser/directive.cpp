@@ -46,6 +46,19 @@ void dir_server(DataConfig *data)
 		data->currentServer.root = token[i];
 		i++;
 	}
+	else if(token[i] == "autoindex")
+	{
+		i++;
+		if(i >= token.size())
+			throw std::out_of_range("Acces token : " + token[i-1]);
+		if(token[i] == "off")
+			data->currentServer.autoindex = 0;
+		else if(token[i] == "on")
+			data->currentServer.autoindex = 1;
+		else
+			std::runtime_error("Unknow directory_listing directive : " + token[i]);
+		i++;
+	}
 	else if(token[i] == "index")
 	{
 		i++;

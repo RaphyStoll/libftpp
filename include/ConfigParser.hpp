@@ -43,6 +43,11 @@ class RouteConfig
 	std::map<int, std::string> redirect; //redirect 301 /new
 
 	RouteConfig();
+
+	public :
+
+	void print(void) const;
+
 };
 
 class ServerConfig
@@ -57,8 +62,11 @@ class ServerConfig
 	size_t max_body_size; // 1000000
 	std::map<int, std::string> error_pages; // error_page 404 ./errors/404.html
 	std::vector<RouteConfig> routes; // route/..
+	bool autoindex; //on
 
 	ServerConfig();
+
+	void print(void) const;
 };
 
 struct DataConfig {
@@ -73,25 +81,22 @@ struct DataConfig {
 	size_t i;
 };
 
-void openFileAndParseConfig(DataConfig *data);
+void	openFileAndParseConfig(DataConfig *data);
 
-void state_global(DataConfig *data);
-void state_server(DataConfig *data);
-void state_route(DataConfig *data);
+void	state_global(DataConfig *data);
+void	state_server(DataConfig *data);
+void	state_route(DataConfig *data);
 
-void dir_server(DataConfig *data);
-void dir_route(DataConfig *data);
+void	dir_server(DataConfig *data);
+void	dir_route(DataConfig *data);
 
-void print_vect(const std::vector<std::string> &vect);
-void print_server (const ServerConfig &serv);
-void print_route (const RouteConfig &route);
-void print_conf (const std::vector<ServerConfig> &serv);
+void	print_vect(const std::vector<std::string> &vect);
+void	print_conf (const std::vector<ServerConfig> &serv);
 
-void valid_port(DataConfig *data);
-void valid_max_body_size(DataConfig *data);
-void valid_error_code(DataConfig *data);
-void valid_path(DataConfig *data);
-int valid_ipv4(DataConfig *data);
-
+void	valid_port(DataConfig *data);
+void	valid_max_body_size(DataConfig *data);
+void	valid_error_code(DataConfig *data);
+void	valid_path(DataConfig *data);
+int		valid_ipv4(DataConfig *data);
 
 #endif

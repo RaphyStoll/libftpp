@@ -119,8 +119,5 @@ void openFileAndParseConfig(DataConfig *data)
 //	std::cout << std::endl;
 	pars_state(data);
 	std::cout << std::endl;
-
-//	print_route(data->servers[0].routes[0]);
-//	print_server(data->servers[0]);
 	print_conf(data->servers);
 }
