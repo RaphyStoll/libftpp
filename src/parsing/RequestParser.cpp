@@ -80,7 +80,7 @@ namespace http
 		if (!(iss >> method >> uri >> version))
 			return false;
 
-		if (version != "HTTP/1.1" && version != "HTTP/1.0")
+		if (version != "HTTP/1.1")
 			return false;
 
 		size_t queryPos = uri.find('?');
@@ -125,11 +125,6 @@ namespace http
 
 		if (transferEncoding.find("chunked") != std::string::npos)
 		{
-			if (_httpVersion == "HTTP/1.0")
-			{
-				_errorCode = 400; // non suporter par 1.0
-				return ERROR;
-			}
 			_state = PARSING_CHUNK_SIZE;
 			return _state;
 		}
@@ -265,14 +260,11 @@ namespace http
 
 	bool RequestParser::_validateHeaders()
 	{
-		if (_httpVersion == "HTTP/1.1")
+		std::string host = _request.getHeader("Host");
+		if (host.empty())
 		{
-			std::string host = _request.getHeader("Host");
-			if (host.empty())
-			{
-				_errorCode = 400;
-				return false;
-			}
+			_errorCode = 400;
+			return false;
 		}
 		return true;
 	}
