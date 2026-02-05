@@ -349,7 +349,7 @@ namespace http
 			_errorCode = 400;
 			return false;
 		}
-		if (host.find(' ') != std::string::npos||host.find('\t') != std::string::npos)
+		if (host.find(' ') != std::string::npos || host.find('\t') != std::string::npos)
 		{
 			_errorCode = 400;
 			return false;
@@ -410,31 +410,6 @@ namespace http
 					_errorCode = 400;
 				return ERROR;
 			}
-		}
-	}
-
-	std::string RequestParser::getErrorMessage() const
-	{
-		switch (_errorCode)
-		{
-		case 400:
-			return "Bad Request";
-		case 405:
-			return "Method Not Allowed";
-		case 411:
-			return "Length Required";
-		case 413:
-			return "Payload Too Large";
-		case 414:
-			return "URI Too Long";
-		case 431:
-			return "Request Header Fields Too Large";
-		case 501:
-			return "Not Implemented";
-		case 505:
-			return "HTTP Version Not Supported";
-		default:
-			return "Unknown Error";
 		}
 	}
 

@@ -35,7 +35,6 @@ namespace http
 		Request &getRequest();
 
 		int getErrorCode() const { return _errorCode; }
-		std::string getErrorMessage() const;
 
 		void reset();
 

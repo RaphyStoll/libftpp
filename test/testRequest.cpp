@@ -1,4 +1,5 @@
 #include "../include/StringUtils.hpp"
+#include "../include/debug.hpp"
 #include "RequestParser.hpp"
 #include <iostream>
 #include <string>
@@ -37,8 +38,11 @@ void testFail(const std::string &name) {
 // =============================================================================
 
 void testSimpleGet() {
+	libftpp::debug::DebugLogger _logger("Main");
   std::cout << "=== Test: Simple GET ===" << std::endl;
+  _logger << "[Parsing] test1..." << std::endl;
   http::RequestParser parser;
+	_logger << "[Parsing] test2..." << std::endl;
   std::string request = "GET /index.html HTTP/1.1\r\n"
                         "Host: www.example.com\r\n"
                         "User-Agent: Mozilla/5.0\r\n"
