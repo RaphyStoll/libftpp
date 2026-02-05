@@ -22,7 +22,7 @@ namespace http {
 
 	class ResponseBuilder {
 	public:
-		static std::string build(const ::http::Request& req, const ServerConfig& config);
+		static std::string build(const http::Request& req, const ServerConfig& config);
 		
 		// Générateur d'erreur complet
 		static std::string generateError(int code, const ServerConfig& config);

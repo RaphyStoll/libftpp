@@ -10,7 +10,7 @@ namespace webserv {
 	
 		class Post {
 		public:
-			static std::string execute(const ::http::Request& req, const ServerConfig& config);
+			static std::string execute(const http::Request& req, const ServerConfig& config);
 		
 		private:
 		

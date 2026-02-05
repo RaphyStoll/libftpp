@@ -10,7 +10,7 @@
 
 using namespace webserv::http;
 
-std::string webserv::http::Get::execute(const ::http::Request& req, const ServerConfig& config)
+std::string webserv::http::Get::execute(const http::Request& req, const ServerConfig& config)
 {
 	int httpCode = 200;
 
