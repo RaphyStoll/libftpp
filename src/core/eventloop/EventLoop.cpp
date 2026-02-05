@@ -26,6 +26,11 @@ using namespace webserv;
 				close(_poll_fds[i].fd);
 		}
 	}
+	
+	const NetworkConfig	webserv::core::EventLoop::getConfig()
+	{
+		return this->_config;
+	}
 
 	void webserv::core::EventLoop::run() {
 		_logger << "[EventLoop] Entering main loop with " << _poll_fds.size() << " monitored fds." << std::endl;

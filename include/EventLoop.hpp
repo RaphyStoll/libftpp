@@ -35,6 +35,8 @@ namespace webserv
 				EventLoop(const std::vector<int>& listen_sockets, const NetworkConfig& config);
 				~EventLoop();
 
+				const NetworkConfig	getConfig();
+				
 				// Boucle principale
 				void run();
 			
