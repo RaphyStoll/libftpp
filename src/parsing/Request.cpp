@@ -11,8 +11,8 @@ namespace http
 
 	std::string Request::getMethod() const { return _method; }
 	std::string Request::getPath() const { return _path; }
-	std::string Request::getQueryString() { return _queryString; }
-	std::string Request::getHttpVersion() { return _httpVersion; }
+	std::string Request::getQueryString() const { return _queryString; }
+	std::string Request::getHttpVersion() const { return _httpVersion; }
 	std::string Request::getBody() const { return _body; }
 
 	std::string Request::getHeader(const std::string &name) const
@@ -44,19 +44,19 @@ namespace http
 			_headers[lower] = value;
 			return;
 		}
-		
+
 		std::map<std::string, std::string>::iterator it = _headers.find(lower);
 		if (it == _headers.end())
 		{
 			_headers[lower] = value;
 			return;
 		}
-		
+
 		if (!it->second.empty() && !value.empty())
 			it->second += ", " + value;
 		else
 			it->second += value;
-		
+
 	}
 
 	void Request::appendBody(const std::string &data) { _body.append(data); }

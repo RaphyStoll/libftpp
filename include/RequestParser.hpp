@@ -37,6 +37,8 @@ namespace http
 		int getErrorCode() const { return _errorCode; }
 		std::string getErrorMessage() const;
 
+		void reset();
+
 	private:
 		Request _request;
 		State _state;
@@ -66,7 +68,7 @@ namespace http
 		State _parseHeadersState();
 		bool _isValidMethod(const std::string &method) const;
 		bool _isValidHeaderName(const std::string &name) const;
-		bool _isValidRequestTarget(const std::string &method, const std::string &uri);
+		bool _isValidRequestTarget(const std::string &uri);
 		bool _hasDotDotSegment(const std::string &path) const;
 		bool _parseContentLengthHeader(const std::string &value);
 		bool _parseTransferEncodingHeader(const std::string &value);

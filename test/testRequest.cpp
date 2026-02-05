@@ -55,20 +55,40 @@ void testSimpleGet() {
   }
 }
 
-void testSimpleGetHttp10() {
-  std::cout << "=== Test: Simple GET HTTP/1.0 ===" << std::endl;
+void testSimpleDelete() {
+  std::cout << "=== Test: Simple DELETE ===" << std::endl;
   http::RequestParser parser;
-  std::string request = "GET /index.html HTTP/1.0\r\n"
-                        "\r\n"; // Note: Host not required in HTTP/1.0
+  std::string request = "DELETE /api/users/123 HTTP/1.1\r\n"
+                        "Host: api.example.com\r\n"
+                        "\r\n";
 
   http::RequestParser::State state =
       parser.parse(request.c_str(), request.size());
 
-  if (state == http::RequestParser::COMPLETE) {
-    testPass("HTTP/1.0 GET without Host header accepted");
+  if (state == http::RequestParser::COMPLETE &&
+      parser.getRequest().getMethod() == "DELETE") {
+    testPass("DELETE method parsing complete");
     printRequest(parser.getRequest());
   } else {
-    testFail("HTTP/1.0 GET should not require Host header");
+    testFail("DELETE method parsing failed");
+  }
+}
+
+void testHttp10Rejected() {
+  std::cout << "=== Test: HTTP/1.0 rejected with 505 ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET /index.html HTTP/1.0\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 505) {
+    testPass("HTTP/1.0 correctly rejected with 505 HTTP Version Not Supported");
+  } else {
+    testFail("HTTP/1.0 should be rejected with 505");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
   }
 }
 
@@ -253,28 +273,6 @@ void testChunkedEncoding() {
   }
 }
 
-void testChunkedEncodingHttp10Rejected() {
-  std::cout << "=== Test: Chunked encoding rejected for HTTP/1.0 ==="
-            << std::endl;
-  http::RequestParser parser;
-  std::string request = "POST /upload HTTP/1.0\r\n"
-                        "Transfer-Encoding: chunked\r\n"
-                        "\r\n"
-                        "5\r\n"
-                        "Hello\r\n"
-                        "0\r\n"
-                        "\r\n";
-
-  http::RequestParser::State state =
-      parser.parse(request.c_str(), request.size());
-
-  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
-    testPass("Chunked encoding correctly rejected for HTTP/1.0");
-  } else {
-    testFail("Chunked encoding should be rejected for HTTP/1.0");
-  }
-}
-
 void testChunkedIncrementalParsing() {
   std::cout << "=== Test: Chunked encoding with incremental data ==="
             << std::endl;
@@ -342,15 +340,18 @@ void testIncrementalParsing() {
 void testInvalidHttpVersion() {
   std::cout << "=== Test: Invalid HTTP version ===" << std::endl;
   http::RequestParser parser;
-  std::string request = "GET / HTTP/2.0\r\n\r\n";
+  std::string request = "GET / HTTP/2.0\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
 
   http::RequestParser::State state =
       parser.parse(request.c_str(), request.size());
 
-  if (state == http::RequestParser::ERROR) {
-    testPass("Invalid HTTP version correctly rejected");
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 505) {
+    testPass("Invalid HTTP version correctly rejected (505)");
   } else {
-    testFail("Should have rejected HTTP/2.0");
+    testFail("Should have rejected HTTP/2.0 with 505");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
   }
 }
 
@@ -387,6 +388,24 @@ void testMalformedHeader() {
   }
 }
 
+void testUnsupportedMethod() {
+  std::cout << "=== Test: Unsupported method (PUT) ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "PUT /resource HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 501) {
+    testPass("Unsupported method correctly rejected (501 Not Implemented)");
+  } else {
+    testFail("PUT method should be rejected with 501");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
 // =============================================================================
 // KEEP-ALIVE TESTS
 // =============================================================================
@@ -404,37 +423,6 @@ void testKeepAliveHttp11() {
     testPass("HTTP/1.1 defaults to keep-alive");
   } else {
     testFail("HTTP/1.1 should default to keep-alive");
-  }
-}
-
-void testKeepAliveHttp10() {
-  std::cout << "=== Test: HTTP/1.0 default close ===" << std::endl;
-  http::RequestParser parser;
-  std::string request = "GET / HTTP/1.0\r\n"
-                        "\r\n";
-
-  parser.parse(request.c_str(), request.size());
-
-  if (!parser.getRequest().keepAlive()) {
-    testPass("HTTP/1.0 defaults to close");
-  } else {
-    testFail("HTTP/1.0 should default to close");
-  }
-}
-
-void testHttp10ExplicitKeepAlive() {
-  std::cout << "=== Test: HTTP/1.0 explicit keep-alive ===" << std::endl;
-  http::RequestParser parser;
-  std::string request = "GET / HTTP/1.0\r\n"
-                        "Connection: keep-alive\r\n"
-                        "\r\n";
-
-  parser.parse(request.c_str(), request.size());
-
-  if (parser.getRequest().keepAlive()) {
-    testPass("HTTP/1.0 with Connection: keep-alive works");
-  } else {
-    testFail("HTTP/1.0 with explicit keep-alive should keep connection");
   }
 }
 
@@ -486,6 +474,400 @@ void testCaseInsensitiveHeaders() {
 }
 
 // =============================================================================
+// PATH TRAVERSAL TESTS
+// =============================================================================
+
+void testPathTraversalMiddle() {
+  std::cout << "=== Test: Path traversal /../ rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET /foo/../etc/passwd HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Path traversal /../ correctly rejected");
+  } else {
+    testFail("Path traversal /../ should be rejected with 400");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testPathTraversalEnd() {
+  std::cout << "=== Test: Path traversal /.. at end rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET /foo/bar/.. HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Path traversal /.. at end correctly rejected");
+  } else {
+    testFail("Path traversal /.. at end should be rejected with 400");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testPathTraversalStart() {
+  std::cout << "=== Test: Path traversal ../ at start rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET ../etc/passwd HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Path traversal ../ at start correctly rejected");
+  } else {
+    testFail("Path traversal ../ at start should be rejected with 400");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+// =============================================================================
+// CONTENT-LENGTH VALIDATION TESTS
+// =============================================================================
+
+void testMultipleContentLengthSameValue() {
+  std::cout << "=== Test: Multiple Content-Length with same value ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Content-Length: 5\r\n"
+                        "Content-Length: 5\r\n"
+                        "\r\n"
+                        "hello";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::COMPLETE &&
+      parser.getRequest().getBody() == "hello") {
+    testPass("Multiple identical Content-Length values accepted");
+  } else {
+    testFail("Multiple identical Content-Length values should be accepted");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testMultipleContentLengthDifferentValues() {
+  std::cout << "=== Test: Multiple Content-Length with different values ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Content-Length: 5\r\n"
+                        "Content-Length: 10\r\n"
+                        "\r\n"
+                        "hello";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Conflicting Content-Length values correctly rejected");
+  } else {
+    testFail("Conflicting Content-Length values should be rejected with 400");
+  }
+}
+
+void testContentLengthCommaSeparated() {
+  std::cout << "=== Test: Content-Length with comma-separated identical values ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Content-Length: 5, 5, 5\r\n"
+                        "\r\n"
+                        "hello";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::COMPLETE &&
+      parser.getRequest().getBody() == "hello") {
+    testPass("Comma-separated identical Content-Length values accepted");
+  } else {
+    testFail("Comma-separated identical Content-Length should be accepted");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testContentLengthNonNumeric() {
+  std::cout << "=== Test: Content-Length with non-numeric value ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Content-Length: abc\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Non-numeric Content-Length correctly rejected");
+  } else {
+    testFail("Non-numeric Content-Length should be rejected with 400");
+  }
+}
+
+// =============================================================================
+// TRANSFER-ENCODING TESTS
+// =============================================================================
+
+void testTransferEncodingAndContentLengthConflict() {
+  std::cout << "=== Test: Transfer-Encoding + Content-Length conflict ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Transfer-Encoding: chunked\r\n"
+                        "Content-Length: 100\r\n"
+                        "\r\n"
+                        "5\r\n"
+                        "hello\r\n"
+                        "0\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Transfer-Encoding + Content-Length conflict correctly rejected");
+  } else {
+    testFail("Transfer-Encoding + Content-Length should be rejected with 400");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testUnsupportedTransferEncoding() {
+  std::cout << "=== Test: Unsupported Transfer-Encoding (gzip) ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Transfer-Encoding: gzip\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 501) {
+    testPass("Unsupported Transfer-Encoding correctly rejected (501)");
+  } else {
+    testFail("Unsupported Transfer-Encoding should be rejected with 501");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testMultipleTransferEncodings() {
+  std::cout << "=== Test: Multiple Transfer-Encodings rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "POST /api HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Transfer-Encoding: gzip, chunked\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Multiple Transfer-Encodings correctly rejected");
+  } else {
+    testFail("Multiple Transfer-Encodings should be rejected with 400");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+// =============================================================================
+// HEADER VALIDATION TESTS
+// =============================================================================
+
+void testHeaderFoldingRejected() {
+  std::cout << "=== Test: Obsolete header folding rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET / HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "X-Custom-Header: value\r\n"
+                        " continued\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Obsolete header folding correctly rejected");
+  } else {
+    testFail("Obsolete header folding should be rejected with 400");
+  }
+}
+
+void testInvalidHeaderName() {
+  std::cout << "=== Test: Invalid header name (contains space) ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET / HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Invalid Header: value\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Invalid header name correctly rejected");
+  } else {
+    testFail("Header name with space should be rejected with 400");
+  }
+}
+
+void testHostHeaderWithWhitespace() {
+  std::cout << "=== Test: Host header with embedded whitespace rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET / HTTP/1.1\r\n"
+                        "Host: example .com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR && parser.getErrorCode() == 400) {
+    testPass("Host header with embedded whitespace correctly rejected");
+  } else {
+    testFail("Host with embedded whitespace should be rejected with 400");
+    std::cout << "  Got error code: " << parser.getErrorCode() << std::endl;
+  }
+}
+
+void testDuplicateHeadersCombined() {
+  std::cout << "=== Test: Duplicate headers combined with comma ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET / HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "Accept: text/html\r\n"
+                        "Accept: application/json\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::COMPLETE) {
+    std::string accept = parser.getRequest().getHeader("Accept");
+    if (accept == "text/html, application/json") {
+      testPass("Duplicate headers correctly combined");
+    } else {
+      testFail("Duplicate headers should be combined with comma");
+      std::cout << "  Got Accept: " << accept << std::endl;
+    }
+  } else {
+    testFail("Request with duplicate headers should be accepted");
+  }
+}
+
+// =============================================================================
+// RESET/KEEP-ALIVE TESTS
+// =============================================================================
+
+void testParserReset() {
+  std::cout << "=== Test: Parser reset for keep-alive ===" << std::endl;
+  http::RequestParser parser;
+
+  // First request
+  std::string request1 = "GET /first HTTP/1.1\r\n"
+                         "Host: example.com\r\n"
+                         "\r\n";
+  parser.parse(request1.c_str(), request1.size());
+
+  if (parser.getRequest().getPath() != "/first") {
+    testFail("First request should have path /first");
+    return;
+  }
+
+  // Reset and parse second request
+  parser.reset();
+
+  std::string request2 = "POST /second HTTP/1.1\r\n"
+                         "Host: example.com\r\n"
+                         "Content-Length: 4\r\n"
+                         "\r\n"
+                         "test";
+  http::RequestParser::State state =
+      parser.parse(request2.c_str(), request2.size());
+
+  if (state == http::RequestParser::COMPLETE &&
+      parser.getRequest().getPath() == "/second" &&
+      parser.getRequest().getMethod() == "POST" &&
+      parser.getRequest().getBody() == "test") {
+    testPass("Parser reset works correctly for keep-alive");
+  } else {
+    testFail("Parser reset should allow parsing new request");
+    std::cout << "  Path: " << parser.getRequest().getPath() << std::endl;
+    std::cout << "  Method: " << parser.getRequest().getMethod() << std::endl;
+  }
+}
+
+// =============================================================================
+// URI VALIDATION TESTS
+// =============================================================================
+
+void testEmptyUri() {
+  std::cout << "=== Test: Empty URI rejected ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET  HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::ERROR) {
+    testPass("Empty URI correctly rejected");
+  } else {
+    testFail("Empty URI should be rejected");
+  }
+}
+
+void testAbsoluteFormUri() {
+  std::cout << "=== Test: Absolute-form URI parsing ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET http://example.com/path/to/resource HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::COMPLETE &&
+      parser.getRequest().getPath() == "/path/to/resource") {
+    testPass("Absolute-form URI correctly parsed to path");
+  } else {
+    testFail("Absolute-form URI should extract path");
+    std::cout << "  Path: " << parser.getRequest().getPath() << std::endl;
+  }
+}
+
+void testAbsoluteFormUriNoPath() {
+  std::cout << "=== Test: Absolute-form URI with no path ===" << std::endl;
+  http::RequestParser parser;
+  std::string request = "GET http://example.com HTTP/1.1\r\n"
+                        "Host: example.com\r\n"
+                        "\r\n";
+
+  http::RequestParser::State state =
+      parser.parse(request.c_str(), request.size());
+
+  if (state == http::RequestParser::COMPLETE &&
+      parser.getRequest().getPath() == "/") {
+    testPass("Absolute-form URI with no path defaults to /");
+  } else {
+    testFail("Absolute-form URI with no path should default to /");
+    std::cout << "  Path: " << parser.getRequest().getPath() << std::endl;
+  }
+}
+
+// =============================================================================
 // MAIN
 // =============================================================================
 
@@ -495,39 +877,79 @@ int main() {
   std::cout << "========================================\n" << std::endl;
 
   // Basic parsing
+  std::cout << "\n--- Basic Parsing Tests ---\n" << std::endl;
   testSimpleGet();
-  testSimpleGetHttp10();
+  testSimpleDelete();
+  testHttp10Rejected();
   testHttp11RequiresHost();
 
   // Query string
+  std::cout << "\n--- Query String Tests ---\n" << std::endl;
   testQueryStringParsing();
 
   // Body parsing (Content-Length)
+  std::cout << "\n--- Body Parsing Tests (Content-Length) ---\n" << std::endl;
   testPostWithBody();
   testPostBodyInChunks();
   testPostWithoutContentLength();
 
   // Chunked encoding (HTTP/1.1)
+  std::cout << "\n--- Chunked Encoding Tests ---\n" << std::endl;
   testChunkedEncoding();
-  testChunkedEncodingHttp10Rejected();
   testChunkedIncrementalParsing();
 
   // Incremental parsing
+  std::cout << "\n--- Incremental Parsing Tests ---\n" << std::endl;
   testIncrementalParsing();
 
   // Error handling
+  std::cout << "\n--- Error Handling Tests ---\n" << std::endl;
   testInvalidHttpVersion();
   testMalformedRequestLine();
   testMalformedHeader();
+  testUnsupportedMethod();
 
   // Keep-alive behavior
+  std::cout << "\n--- Keep-Alive Tests ---\n" << std::endl;
   testKeepAliveHttp11();
-  testKeepAliveHttp10();
-  testHttp10ExplicitKeepAlive();
   testHttp11ExplicitClose();
+  testParserReset();
 
   // Case-insensitive headers
+  std::cout << "\n--- Case-Insensitive Header Tests ---\n" << std::endl;
   testCaseInsensitiveHeaders();
+
+  // Path traversal
+  std::cout << "\n--- Path Traversal Tests ---\n" << std::endl;
+  testPathTraversalMiddle();
+  testPathTraversalEnd();
+  testPathTraversalStart();
+
+  // Content-Length validation
+  std::cout << "\n--- Content-Length Validation Tests ---\n" << std::endl;
+  testMultipleContentLengthSameValue();
+  testMultipleContentLengthDifferentValues();
+  testContentLengthCommaSeparated();
+  testContentLengthNonNumeric();
+
+  // Transfer-Encoding validation
+  std::cout << "\n--- Transfer-Encoding Tests ---\n" << std::endl;
+  testTransferEncodingAndContentLengthConflict();
+  testUnsupportedTransferEncoding();
+  testMultipleTransferEncodings();
+
+  // Header validation
+  std::cout << "\n--- Header Validation Tests ---\n" << std::endl;
+  testHeaderFoldingRejected();
+  testInvalidHeaderName();
+  testHostHeaderWithWhitespace();
+  testDuplicateHeadersCombined();
+
+  // URI validation
+  std::cout << "\n--- URI Validation Tests ---\n" << std::endl;
+  testEmptyUri();
+  testAbsoluteFormUri();
+  testAbsoluteFormUriNoPath();
 
   // Summary
   std::cout << "\n========================================" << std::endl;

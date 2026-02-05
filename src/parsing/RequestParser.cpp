@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -14,7 +15,7 @@ namespace http
 		: _state(PARSING_REQUEST), _buffer(""), _errorCode(0), _contentLength(0),
 		  _maxBodySize(1048576), _bodyBytesRemaining(0), _currentChunkSize(0),
 		  _chunkBytesRemaining(0), _seenContentLength(0), _contentLengthHeaderValue(0),
-		  _headerCount(0) {}
+		  _hasTransferEncoding(false), _headerCount(0) {}
 
 	RequestParser::~RequestParser() {}
 
@@ -91,11 +92,11 @@ namespace http
 
 		if (version != "HTTP/1.1")
 		{
-			return _errorCode = 505;
+			_errorCode = 505;
 			return false;
 		}
 
-		if (!_isValidRequestTarget(method, uri))
+		if (!_isValidRequestTarget(uri))
 			return false;
 
 		std::string pathPart = uri;
@@ -159,6 +160,7 @@ namespace http
 		// trim les espaces de la valeur
 		value.erase(0, value.find_first_not_of(" \t"));
 		value.erase(value.find_last_not_of(" \t") + 1);
+		// libftpp::str::StringUtils::trimWhiteSpace(value);
 
 		for (size_t i = 0; i < value.size(); ++i)
 		{
@@ -175,6 +177,10 @@ namespace http
 			return _parseContentLengthHeader(value);
 		if (lowerKey == "transfer-encoding")
 			return _parseTransferEncodingHeader(value);
+		if (lowerKey == "connection"){
+			_request.setHeader(key, libftpp::str::StringUtils::toLower(value));
+			return true;
+		}
 
 		_request.setHeader(key, value);
 		return true;
@@ -184,6 +190,14 @@ namespace http
 
 	RequestParser::State RequestParser::_determineBodyParsing()
 	{
+		if (_hasTransferEncoding && _seenContentLength) // les 2 ne peuvent pas se retrouver en meme temps
+		{
+			_errorCode = 400;
+			return ERROR;
+			// ou alors enlever le content length mais plus risqué
+			// _request.removeHeader("Content-Length");
+		}
+
 		if (_hasTransferEncoding)
 		{
 			_state = PARSING_CHUNK_SIZE;
@@ -232,7 +246,7 @@ namespace http
 		if (toRead > 0)
 		{
 			_request.appendBody(_buffer.substr(0, toRead));
-			_buffer.erase(0, toRead);
+			_buffer.erase(0, toRead); // todo replace by the compactBuffer
 			_bodyBytesRemaining -= toRead;
 		}
 
@@ -289,6 +303,12 @@ namespace http
 					_chunkBytesRemaining -= toRead;
 				}
 
+				if (_request.getBodySize() > _maxBodySize)
+				{
+					_errorCode = 413;
+					return ERROR;
+				}
+
 				if (_chunkBytesRemaining == 0)
 				{
 					if (_buffer.size() < 2)
@@ -329,6 +349,12 @@ namespace http
 			_errorCode = 400;
 			return false;
 		}
+		if (host.find(' ') != std::string::npos||host.find('\t') != std::string::npos)
+		{
+			_errorCode = 400;
+			return false;
+		}
+
 		return true;
 	}
 
@@ -453,10 +479,11 @@ namespace http
 		if (path.size() >= 3 && path.compare(path.size() - 3, 3, "/..") == 0)
 			return true;
 		if (path.compare(0, 3, "../") == 0)
-			return false;
+			return true;
+		return false;
 	}
 
-	bool RequestParser::_isValidRequestTarget(const std::string &method, const std::string &uri)
+	bool RequestParser::_isValidRequestTarget(const std::string &uri)
 	{
 		if (uri.empty())
 		{
@@ -464,9 +491,9 @@ namespace http
 			return false;
 		}
 
-		if (uri.size(), MAX_URI_LENGTH)
+		if (uri.size() > MAX_URI_LENGTH)
 		{
-			_errorCode - 414;
+			_errorCode = 414;
 			return false;
 		}
 
@@ -503,8 +530,8 @@ namespace http
 		for (size_t i = 0; i < parts.size(); ++i)
 		{
 			std::string p = parts[i];
-			p.erase(0, p.find_first_not_of(" /t"));
-			p.erase(p.find_last_not_of(" /t") + 1);
+			p.erase(0, p.find_first_not_of(" \t"));
+			p.erase(p.find_last_not_of(" \t") + 1);
 
 			if (p.empty())
 			{
@@ -584,4 +611,19 @@ namespace http
 		return true;
 	}
 
+	void RequestParser::reset() // si besoin pour le keep alive
+	{
+		_state = PARSING_REQUEST;
+		_buffer.clear();
+		_errorCode = 0;
+		_contentLength = 0;
+		_bodyBytesRemaining = 0;
+		_currentChunkSize = 0;
+		_chunkBytesRemaining = 0;
+		_seenContentLength = false;
+		_contentLengthHeaderValue.clear();
+		_hasTransferEncoding = false;
+		_headerCount = 0;
+		_request = Request();
+	}
 } // namespace http
