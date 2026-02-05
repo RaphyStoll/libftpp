@@ -7,7 +7,7 @@ NC = \033[0m
 NAME        = Webserv
 
 CPP         = c++
-CPPFLAGS    = -Wall -Wextra -Werror -std=c++98 -MMD -MP
+CPPFLAGS    = -Wall -Wextra -Werror -std=c++98 -MMD -MP -g3
 
 LIBFT_DIR   = lib/LIBFTPP
 LIBFT_A     = $(LIBFT_DIR)/libftpp.a

@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 		server1.start();
 		
 		// Note: Il faudra ajouter la config au constructeur d'EventLoop
-		EventLoop loop(server1.getListenSockets(), net_config);
+		webserv::core::EventLoop loop(server1.getListenSockets(), net_config);
 		loop.run();
 
 	} catch (const std::exception& e) {

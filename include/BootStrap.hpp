@@ -14,7 +14,8 @@ namespace webserv {
 	 * 
 	 * Elle prend un type NetworkConfig
 	 */
-	class BootStrap {
+	class BootStrap
+	{
 		public:
 			BootStrap(const NetworkConfig& par_config);
 			~BootStrap() {}

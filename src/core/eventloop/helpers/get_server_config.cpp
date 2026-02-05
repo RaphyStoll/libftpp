@@ -1,9 +1,10 @@
-#include "../../../include/EventLoop.hpp"
 #include <sstream>
+
+#include "EventLoop.hpp"
 
 using namespace webserv;
 
-const ServerConfig& EventLoop::_getServerConfig(int client_fd, const http::Request& req) {
+const ServerConfig& webserv::core::EventLoop::_getServerConfig(int client_fd, const http::Request& req) {
 	struct sockaddr_in addr;
 	socklen_t len = sizeof(addr);
 	

@@ -1,5 +1,5 @@
-#include "../../../include/EventLoop.hpp"
-#include "../../../lib/LIBFTPP/include/Net.hpp"
+#include "EventLoop.hpp"
+#include "libftpp.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -10,18 +10,16 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-
-
 using namespace libftpp::net;
 using namespace webserv;
 
-void EventLoop::_accept_new_connection(int listen_fd) {
+void webserv::core::EventLoop::_accept_new_connection(int listen_fd) {
 	struct sockaddr_in client_addr;
 	socklen_t addr_len = sizeof(client_addr);
 	
 	int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &addr_len);
 	if (client_fd < 0) {
-		_logger << "[EventLoop] accept failed: " << strerror(errno) << std::endl;
+		_logger << "[EventLoop] accept failed: " << std::strerror(errno) << std::endl;
 		return;
 	}
 
@@ -37,7 +35,7 @@ void EventLoop::_accept_new_connection(int listen_fd) {
 	pfd.revents = 0;
 	_poll_fds.push_back(pfd);
 
-	_client_parsers[client_fd] = http::RequestParser();
+	_clients.insert(std::make_pair(client_fd, webserv::core::Client(client_fd)));
 
 	_logger << "[EventLoop] New connection accepted (fd: " << client_fd << ")" << std::endl;
 }

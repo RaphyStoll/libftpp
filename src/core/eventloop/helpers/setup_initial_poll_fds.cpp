@@ -1,5 +1,5 @@
-#include "../../../include/EventLoop.hpp"
-#include "../../../lib/LIBFTPP/include/Net.hpp"
+#include "EventLoop.hpp"
+#include "libftpp.hpp"
 
 #include <iostream>
 #include <cstring>
@@ -15,7 +15,7 @@
 using namespace libftpp::net;
 using namespace webserv;
 
-void EventLoop::_setup_initial_poll_fds() {
+void webserv::core::EventLoop::_setup_initial_poll_fds() {
 		for (size_t i = 0; i < _listen_sockets.size(); ++i) {
 			struct pollfd pfd;
 			pfd.fd = _listen_sockets[i];

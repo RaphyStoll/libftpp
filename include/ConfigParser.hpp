@@ -62,6 +62,7 @@ class ServerConfig
 };
 
 struct DataConfig {
+	
 	std::string config_path;
 	std::vector<std::string> brut_line;
 	std::vector<std::string> token;

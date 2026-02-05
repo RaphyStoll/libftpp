@@ -1,6 +1,3 @@
-#include "../../include/BootStrap.hpp"
-#include "../../lib/LIBFTPP/include/libftpp.hpp"
-
 #include <cstring>
 #include <stdexcept>
 
@@ -9,6 +6,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#include "../../include/BootStrap.hpp"
+#include "../../lib/LIBFTPP/include/libftpp.hpp"
 
 using namespace libftpp::net;
 using namespace libftpp::str;
