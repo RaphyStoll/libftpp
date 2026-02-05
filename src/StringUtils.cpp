@@ -3,6 +3,7 @@
 #include <cctype>
 #include <limits>
 #include <cstdlib>
+#include <string>
 
 using libftpp::str::StringUtils;
 
@@ -81,13 +82,18 @@ std::string StringUtils::itos(const int n) {
 	return to_string(n);
 }
 
+/*void trimWhiteSpace(const std::string& s){
+	s.erase(0, s.find_first_not_of(" \t"));
+	s.erase(s.find_last_not_of(" \t") + 1);
+	}*/
+
 bool StringUtils::parse_int(const std::string& s, int& out) {
 	if (s.empty())
 		return false;
 
 	size_t i = 0;
 	bool negative = false;
-	
+
 	if (s[i] == '-') {
 		negative = true;
 		++i;
@@ -109,12 +115,12 @@ bool StringUtils::parse_int(const std::string& s, int& out) {
 		unsigned char c = (unsigned char)s[i];
 		if (c < '0' || c > '9')
 			return false;
-		
+
 		unsigned int digit = (unsigned int)(c - '0');
 
 		if (uval > (limit - digit) / 10)
 			return false;
-		
+
 		uval = uval * 10 + digit;
 	}
 
