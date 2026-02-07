@@ -73,7 +73,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(LIBFT_A):
 	$(MAKE) -C $(LIBFT_DIR) static
 
-	# ==================== TEST TARGETS ====================
+# ==================== TEST TARGETS ====================
 test: $(LIBFT_A) $(OBJS_NO_MAIN) $(TEST_OBJ)
 		$(CPP) $(CPPFLAGS) $(OBJS_NO_MAIN) $(TEST_OBJ) $(LIBFT_A) -o $(TEST_NAME)
 		@echo "\n Test binary built: ./$(TEST_NAME)\n"
