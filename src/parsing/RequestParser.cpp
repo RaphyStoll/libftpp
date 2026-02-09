@@ -14,7 +14,7 @@ using namespace webserv::http;
 RequestParser::RequestParser()
 	: _state(PARSING_REQUEST), _buffer(""), _errorCode(0), _contentLength(0),
 	  _maxBodySize(1048576), _bodyBytesRemaining(0), _currentChunkSize(0),
-	  _chunkBytesRemaining(0), _seenContentLength(0), _contentLengthHeaderValue(0),
+	  _chunkBytesRemaining(0), _seenContentLength(false), _contentLengthHeaderValue(""),
 	  _hasTransferEncoding(false), _headerCount(0) {}
 
 RequestParser::~RequestParser() {}
