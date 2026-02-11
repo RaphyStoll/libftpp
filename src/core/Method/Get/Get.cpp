@@ -75,12 +75,13 @@ std::string webserv::http::Get::execute(const ::http::Request& req, const Server
 {
 	int httpCode = 200;
 	std::string content = "";
+	std::string fullPath = "";
 
 
-	std::string fullPath = _getSecurePath(config.root, req.getPath(), httpCode);
-//	if (httpCode != 200) //SDU : en commentaire car trop restrictif
-//		return ResponseBuilder::generateError(httpCode, config);
+	if (httpCode != 200) 
+		return ResponseBuilder::generateError(httpCode, config);
 
+	//   http://37.59.120.163:9003/search?query=webserv   //SDU
 	for(size_t i = 0; i < config.routes.size(); i++) //SDU CGI, verifier ou il faut le positionner
 	{
 		if(req.getPath() == config.routes[i].path)
@@ -90,6 +91,8 @@ std::string webserv::http::Get::execute(const ::http::Request& req, const Server
 		}
 	}
 
+	fullPath = _getSecurePath(config.root, req.getPath(), httpCode);//SDU : trop restrictif
+	std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
 	struct stat s;
 	if (stat(fullPath.c_str(), &s) == 0 && (s.st_mode & S_IFDIR)) {
 		if (!_checkIndexFile(fullPath, httpCode)) {
@@ -98,21 +101,16 @@ std::string webserv::http::Get::execute(const ::http::Request& req, const Server
 			return ResponseBuilder::generateError(httpCode, config);
 		}
 	}
-
+	
 	if (access(fullPath.c_str(), R_OK) != 0)
+	{
 		return ResponseBuilder::generateError(403, config);
-
+	}
+	content = _readFile(fullPath);
 	if (content.empty() && s.st_size > 0)
 		return ResponseBuilder::generateError(500, config);
-
-//	std::string content = _readFile(fullPath);
-	content = _readFile(fullPath);
-//	std::cout << "full_path = " << fullPath << std::endl; //SDU
-
-//	std::string content = "";
-
-
-
+	std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
+	
 
 	return _createSuccessResponse(content, fullPath);
 }

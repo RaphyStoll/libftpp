@@ -61,9 +61,9 @@ int main(int argc, char** argv) {
 		server1.start();
 		
 		// Note: Il faudra ajouter la config au constructeur d'EventLoop
-		std::cout << "server1.getListenSockets()[0] = " << server1.getListenSockets()[0] << std::endl;
-		std::cout << "server1.getListenSockets()[1] = " << server1.getListenSockets()[1] << std::endl;
-		std::cout << "server1.getListenSockets()[2] = " << server1.getListenSockets()[2] << std::endl;
+	//	std::cout << "server1.getListenSockets()[0] = " << server1.getListenSockets()[0] << std::endl; //SDU
+	//	std::cout << "server1.getListenSockets()[1] = " << server1.getListenSockets()[1] << std::endl; //SDU
+	//	std::cout << "server1.getListenSockets()[2] = " << server1.getListenSockets()[2] << std::endl; //SDU
 		webserv::core::EventLoop loop(server1.getListenSockets(), net_config);
 		loop.run();
 

@@ -19,7 +19,9 @@ namespace webserv {
 	// Cela permet de gérer plusieurs serveurs sur le même port (virtual hosting)
 //SDU	typedef std::map<int, std::vector<ServerConfig1> > NetworkConfig;
 
-	typedef std::map<int, std::vector<ServerConfig> > NetworkConfig;//SDU
+	typedef std::map<int, std::vector<ServerConfig> > NetworkConfig;
+
+
 
 }
 
