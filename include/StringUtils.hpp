@@ -25,8 +25,6 @@ public:
 	static int stoi(const std::string &s);
 	static std::string itos(const int n);
 
-	static void trimWhiteSpace(const std::string& s);
-
 	template <typename T>
 	static std::string to_string(const T& n) {
 		std::ostringstream ss;
