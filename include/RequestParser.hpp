@@ -24,7 +24,6 @@ namespace webserv
 				PARSING_REQUEST,
 				PARSING_HEADERS,
 				PARSING_BODY_LENGTH,
-				PARSING_CHUNK,
 				PARSING_CHUNK_SIZE,
 				PARSING_CHUNK_DATA,
 				PARSING_TRAILER,
@@ -48,7 +47,6 @@ namespace webserv
 			std::string _buffer;
 			int _errorCode;
 
-			std::string _httpVersion;
 			unsigned long _contentLength;
 			unsigned long _maxBodySize;
 			unsigned long _bodyBytesRemaining;

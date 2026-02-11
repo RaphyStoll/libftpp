@@ -1,6 +1,7 @@
 #include "../include/StringUtils.hpp"
 
 #include <cctype>
+#include <cstddef>
 #include <limits>
 #include <cstdlib>
 #include <string>
@@ -81,11 +82,6 @@ int StringUtils::stoi(const std::string &s) {
 std::string StringUtils::itos(const int n) {
 	return to_string(n);
 }
-
-/*void trimWhiteSpace(const std::string& s){ // todo seb
-	s.erase(0, s.find_first_not_of(" \t"));
-	s.erase(s.find_last_not_of(" \t") + 1);
-	}*/
 
 bool StringUtils::parse_int(const std::string& s, int& out) {
 	if (s.empty())
