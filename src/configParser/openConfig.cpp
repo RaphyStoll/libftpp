@@ -109,7 +109,7 @@ static void open_conf(DataConfig *data)
 
 void openFileAndParseConfig(DataConfig *data)
 {
-	std::cout << "config_path = " << data->config_path << std::endl;
+	std::cout << "config_path = " << data->config_path << std::endl; //SDU
 
 	open_conf(data);
 //	print_vect(data->brut_line);
@@ -119,5 +119,5 @@ void openFileAndParseConfig(DataConfig *data)
 //	std::cout << std::endl;
 	pars_state(data);
 	std::cout << std::endl;
-	print_conf(data->servers);
+//	print_conf(data->servers); //SDU
 }

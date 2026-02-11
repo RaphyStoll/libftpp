@@ -56,11 +56,14 @@ int main(int argc, char** argv) {
 		NetworkConfig net_config = mapConfig(&data);
 
 		_logger << "[Main] Config loaded. Initializing BootStrap..." << std::endl;
-		BootStrap server1(net_config);
+		BootStrap server1(net_config);//
 
 		server1.start();
 		
 		// Note: Il faudra ajouter la config au constructeur d'EventLoop
+		std::cout << "server1.getListenSockets()[0] = " << server1.getListenSockets()[0] << std::endl;
+		std::cout << "server1.getListenSockets()[1] = " << server1.getListenSockets()[1] << std::endl;
+		std::cout << "server1.getListenSockets()[2] = " << server1.getListenSockets()[2] << std::endl;
 		webserv::core::EventLoop loop(server1.getListenSockets(), net_config);
 		loop.run();
 

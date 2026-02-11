@@ -12,7 +12,7 @@ namespace http
 
 	std::string Request::getMethod() const { return _method; }
 	std::string Request::getPath() const { return _path; }
-	std::string Request::getQueryString() { return _queryString; }
+	std::string Request::getQueryString() const { return _queryString; }
 	std::string Request::getHttpVersion() { return _httpVersion; }
 	std::string Request::getBody() const { return _body; }
 

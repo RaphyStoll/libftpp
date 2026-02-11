@@ -1,5 +1,6 @@
 #include "Get.hpp"
 #include "ResponseBuilder.hpp"
+#include "libftpp.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -9,14 +10,13 @@
 #include <cstdlib>
 #include <sys/wait.h>
 
-using namespace webserv::http;
 
-std::string execute_cgi(const ::http::Request& req, const ServerConfig& config)
+
+std::string execute_cgi(const ::http::Request& req, const ServerConfig& config, size_t i)
 {
 	std::cout << std::endl << "on est dans CGI" << std::endl << std::endl;
-	req.print();
+//	req.print();
 //	config.print();
-	(void)config;
 
 	int pipefd[2];
 	pipe(pipefd);
@@ -29,21 +29,26 @@ std::string execute_cgi(const ::http::Request& req, const ServerConfig& config)
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 
-		char *env[]= {
-			(char*)"REQUEST_METHOD=GET",
-			(char*)"QUERY_STRING=query=webserv",
-			(char*)"PATH_INFO=/search",
-			(char*)"SERVER_NAME=VPSSDU_l_163",
-			(char*)"SERVER_PORT=9003",
-			NULL
-		};
+		std::vector<std::string> envString;
+		envString.push_back("REQUEST_METHOD=" + req.getMethod());
+		envString.push_back("QUERY_STRING=" + req.getQueryString());
+		envString.push_back("PATH_INFO=" + req.getPath());
+		envString.push_back("SERVER_NAME=" + config.server_name);
+		envString.push_back("SERVER_PORT=" + libftpp::str::StringUtils::itos(config.port));
 
-		char *args[] = {
-			(char*)"./cgi/search.py",
-			NULL
-		};
 
-		execve("./cgi/search.py",args,env);
+		std::vector<char*>env;
+		for(size_t i = 0; i < envString.size(); i++)
+			env.push_back(const_cast<char*>(envString[i].c_str()));
+		env.push_back(NULL);
+
+//		std::cerr << "*** config.routes[i].root : " << config.routes[i].root << std::endl;
+
+		char *root = const_cast<char*>(config.routes[i].root.c_str());
+
+		char *args[] = {root, NULL};
+
+		execve(root,args,env.data());
 		perror("execve");
 		_exit(1);
 	}
@@ -69,10 +74,21 @@ std::string execute_cgi(const ::http::Request& req, const ServerConfig& config)
 std::string webserv::http::Get::execute(const ::http::Request& req, const ServerConfig& config)
 {
 	int httpCode = 200;
+	std::string content = "";
+
 
 	std::string fullPath = _getSecurePath(config.root, req.getPath(), httpCode);
-/*	if (httpCode != 200)
-		return ResponseBuilder::generateError(httpCode, config);
+//	if (httpCode != 200) //SDU : en commentaire car trop restrictif
+//		return ResponseBuilder::generateError(httpCode, config);
+
+	for(size_t i = 0; i < config.routes.size(); i++) //SDU CGI, verifier ou il faut le positionner
+	{
+		if(req.getPath() == config.routes[i].path)
+		{
+			content = execute_cgi(req, config, i);
+			return _createSuccessResponse(content, fullPath);
+		}
+	}
 
 	struct stat s;
 	if (stat(fullPath.c_str(), &s) == 0 && (s.st_mode & S_IFDIR)) {
@@ -89,14 +105,14 @@ std::string webserv::http::Get::execute(const ::http::Request& req, const Server
 	if (content.empty() && s.st_size > 0)
 		return ResponseBuilder::generateError(500, config);
 
-	std::string content = _readFile(fullPath);
-*/
+//	std::string content = _readFile(fullPath);
+	content = _readFile(fullPath);
 //	std::cout << "full_path = " << fullPath << std::endl; //SDU
 
-	std::string content = "";
+//	std::string content = "";
 
-	if(req.getPath() == "/search")
-		content = execute_cgi(req, config);
+
+
 
 	return _createSuccessResponse(content, fullPath);
 }

@@ -23,7 +23,7 @@ namespace http
 
 		std::string getMethod() const;
 		std::string getPath() const;
-		std::string getQueryString();
+		std::string getQueryString() const;
 		std::string getHttpVersion();
 		std::string getHeader(const std::string &name) const;
 		std::string getBody() const;
