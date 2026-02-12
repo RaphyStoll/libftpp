@@ -1,4 +1,5 @@
 #include "RequestParser.hpp"
+#include <cstdlib>
 
 using namespace webserv::http;
 

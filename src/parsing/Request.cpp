@@ -2,6 +2,7 @@
 #include "../include/StringUtils.hpp"
 #include <iostream>
 
+
 using namespace webserv::http;
 
 Request::Request()
@@ -78,4 +79,4 @@ void Request::setHeader(const std::string &name, const std::string &value)
 
  	}
 
-} // namespace http
+

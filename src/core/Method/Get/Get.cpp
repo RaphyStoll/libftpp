@@ -1,6 +1,7 @@
 #include "Get.hpp"
 #include "ResponseBuilder.hpp"
 #include "libftpp.hpp"
+#include "Request.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -12,7 +13,7 @@
 
 
 
-std::string execute_cgi(const ::http::Request& req, const ServerConfig& config, size_t i)
+std::string execute_cgi(const webserv::http::Request& req, const ServerConfig& config, size_t i)
 {
 	std::cout << std::endl << "on est dans CGI" << std::endl << std::endl;
 //	req.print();
@@ -35,9 +36,10 @@ std::string execute_cgi(const ::http::Request& req, const ServerConfig& config, 
 		envString.push_back("PATH_INFO=" + req.getPath());
 		envString.push_back("SERVER_NAME=" + config.server_name);
 		envString.push_back("SERVER_PORT=" + libftpp::str::StringUtils::itos(config.port));
-		//SCRIPT_NAME //pas oblige
+		envString.push_back("CONTENT_TYPE=text/html"); //seulement POST
+		//envString.push_back("SCRIPT_NAME="); //seulement POST // search.py
 		//CONTENT_LENGTH //seulement si body(POST) //ok
-		//CONTENT_TYPE //seulement si body(POST)  //ko seb
+
 		//SERVER_PROTOCOL //HTTP/1.1
 		//SERVER_SOFTWARE //C++98?
 		//GATEWAY_INTERFACE//CGI/2.4?
@@ -86,13 +88,12 @@ std::string execute_cgi(const ::http::Request& req, const ServerConfig& config, 
 }
 
 
-std::string webserv::http::Get::execute(const http::Request& req, const ServerConfig& config)
+std::string webserv::http::Get::execute(const http::Request& req, const ServerConfig& config, const RouteConfig& route)
 {
 	(void)route;
 	int httpCode = 200;
 	std::string content = "";
 	std::string fullPath = "";
-
 
 	if (httpCode != 200) 
 		return ResponseBuilder::generateError(httpCode, config);
@@ -102,12 +103,15 @@ std::string webserv::http::Get::execute(const http::Request& req, const ServerCo
 	{
 		if(req.getPath() == config.routes[i].path)
 		{
+			fullPath = "cgi.html";
+
 			content = execute_cgi(req, config, i);
 			return _createSuccessResponse(content, fullPath);
 		}
 	}
-
-	fullPath = _getSecurePath(config.root, req.getPath(), httpCode);//SDU : trop restrictif
+	// TODO RAPH: modif getSecurePath pour aller avec cgi
+	// remplir full path avec vrai path cgi et descendre le block en haut -> en bas
+	fullPath = _getSecurePath(config.root, req.getPath(), httpCode, is_cgi);//SDU : trop restrictif
 	//std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
 	struct stat s;
 	if (stat(fullPath.c_str(), &s) == 0 && (s.st_mode & S_IFDIR)) {

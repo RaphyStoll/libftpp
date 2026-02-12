@@ -8,10 +8,8 @@
 # include <string>
 
 using namespace webserv::http;
-
-std::string webserv::http::ResponseBuilder::build(const http::Request& req, const ServerConfig& config) {
 	
-std::string webserv::http::ResponseBuilder::build(const ::http::Request& req, const ServerConfig& config) {
+std::string webserv::http::ResponseBuilder::build(const webserv::http::Request& req, const ServerConfig& config) {
 	
 	const RouteConfig& route = RouteMatcher::findRoute(req.getPath(), config);
 	if (!RouteMatcher::isMethodAllowed(req.getMethod(), route)) {
@@ -25,12 +23,12 @@ std::string webserv::http::ResponseBuilder::build(const ::http::Request& req, co
 
 	if (method == "GET") {
 		return Get::execute(req, config, route);
-	} 
+	}
 	else if (method == "POST") {
 		return Post::execute(req, config, route);
-	} 
+	}
 	else if (method == "DELETE") {
-		return std::cout << "DELETE METHOD" << std::endl, "DELETE"; //Delete::execute(req, config);
+		return Delete::execute(req, config);
 	}
 	
 	// Méthode inconnue ou non gérée

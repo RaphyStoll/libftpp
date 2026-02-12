@@ -9,7 +9,7 @@
 
 using namespace webserv::http;
 
-std::string webserv::http::Delete::execute(const ::http::Request& req, const ServerConfig& server, const RouteConfig& route)
+std::string webserv::http::Delete::execute(const webserv::http::Request& req, const ServerConfig& server, const RouteConfig& route)
 {
 
 	int httpCode = 204;

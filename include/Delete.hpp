@@ -10,7 +10,7 @@ namespace webserv {
 		class Delete {
 			public:
 				// main function de del execute la methode http
-				static std::string execute(const ::http::Request& req, const ServerConfig& server, const RouteConfig& route);
+				static std::string execute(const webserv::http::Request& req, const ServerConfig& server, const RouteConfig& route);
 			
 			private:
 				// calcul le path a del et check les droit

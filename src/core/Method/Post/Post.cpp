@@ -6,7 +6,7 @@
 
 
 
-std::string webserv::http::Post::execute(const ::http::Request& req, const ServerConfig& server, const RouteConfig& route)
+std::string webserv::http::Post::execute(const webserv::http::Request& req, const ServerConfig& server, const RouteConfig& route)
 {
 int httpCode = 201; // Par défaut : Created
 
