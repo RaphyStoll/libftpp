@@ -31,13 +31,13 @@ public:
 		ss << n;
 		return ss.str();
 	}
-	
+
 	// Retire les espaces (isspace) au début de la chaîne
 	static std::string ltrim(const std::string& s);
-	
+
 	// Retire les espaces (isspace) à la fin de la chaîne
 	static std::string rtrim(const std::string& s);
-	
+
 	// Retire les espaces au début et à la fin
 	static std::string trim(const std::string& s);
 
@@ -56,7 +56,7 @@ public:
 	// Tente de parser un unsigned int depuis la chaîne s.
 	// Retourne true si succès, false si erreur (caractère invalide ou overflow).
 	static bool parse_uint(const std::string& s, unsigned int& out);
-	
+
 	// Idem pour size_t.
 	static bool parse_size_t(const std::string& s, size_t& out);
 };

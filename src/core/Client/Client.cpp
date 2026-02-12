@@ -2,10 +2,13 @@
 
 #include "Client.hpp"
 
+#include "RequestParser.hpp"
+
 #define NEW_CONNECTION_TIMEOUT 60000 // 1000 = 1s
 
 
 using namespace webserv::core;
+using namespace webserv;
 
 webserv::core::Client::Client(int fd) : _fd(fd), _last_activity(NEW_CONNECTION_TIMEOUT)
 {

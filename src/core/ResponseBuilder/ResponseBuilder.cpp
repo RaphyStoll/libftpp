@@ -7,7 +7,7 @@
 
 using namespace webserv::http;
 
-std::string webserv::http::ResponseBuilder::build(const ::http::Request& req, const ServerConfig& config) {
+std::string webserv::http::ResponseBuilder::build(const http::Request& req, const ServerConfig& config) {
 	
 	std::string method = req.getMethod();
 

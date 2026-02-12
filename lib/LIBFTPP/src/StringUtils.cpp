@@ -1,8 +1,10 @@
 #include "../include/StringUtils.hpp"
 
 #include <cctype>
+#include <cstddef>
 #include <limits>
 #include <cstdlib>
+#include <string>
 
 using libftpp::str::StringUtils;
 
@@ -87,7 +89,7 @@ bool StringUtils::parse_int(const std::string& s, int& out) {
 
 	size_t i = 0;
 	bool negative = false;
-	
+
 	if (s[i] == '-') {
 		negative = true;
 		++i;
@@ -109,12 +111,12 @@ bool StringUtils::parse_int(const std::string& s, int& out) {
 		unsigned char c = (unsigned char)s[i];
 		if (c < '0' || c > '9')
 			return false;
-		
+
 		unsigned int digit = (unsigned int)(c - '0');
 
 		if (uval > (limit - digit) / 10)
 			return false;
-		
+
 		uval = uval * 10 + digit;
 	}
 
