@@ -46,6 +46,7 @@ namespace http
 
 	void Request::print(void) const
 	{
+		std::cout << "Request : " << std::endl;
         std::cout << "  _method : " << _method << std::endl;
         std::cout << "  _path : " << _path << std::endl;
         std::cout << "  _queryString : " << _queryString << std::endl;

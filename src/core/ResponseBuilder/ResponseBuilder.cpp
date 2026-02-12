@@ -11,7 +11,7 @@ std::string webserv::http::ResponseBuilder::build(const ::http::Request& req, co
 	
 	std::string method = req.getMethod();
 
-	//   http://37.59.120.163:9003/login.html   //SDU
+	//   http://37.59.120.163:9003/login2.html   //SDU
 	req.print();//SDU
 
 	if (method == "GET") {

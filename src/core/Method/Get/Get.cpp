@@ -92,7 +92,7 @@ std::string webserv::http::Get::execute(const ::http::Request& req, const Server
 	}
 
 	fullPath = _getSecurePath(config.root, req.getPath(), httpCode);//SDU : trop restrictif
-	std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
+	//std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
 	struct stat s;
 	if (stat(fullPath.c_str(), &s) == 0 && (s.st_mode & S_IFDIR)) {
 		if (!_checkIndexFile(fullPath, httpCode)) {
@@ -109,8 +109,6 @@ std::string webserv::http::Get::execute(const ::http::Request& req, const Server
 	content = _readFile(fullPath);
 	if (content.empty() && s.st_size > 0)
 		return ResponseBuilder::generateError(500, config);
-	std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
 	
-
 	return _createSuccessResponse(content, fullPath);
 }
