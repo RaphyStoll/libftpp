@@ -2,6 +2,7 @@
 #include "RouteMatcher.hpp"
 #include "Get.hpp"
 #include "Post.hpp"
+#include "Delete.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -28,7 +29,7 @@ std::string webserv::http::ResponseBuilder::build(const webserv::http::Request& 
 		return Post::execute(req, config, route);
 	}
 	else if (method == "DELETE") {
-		return Delete::execute(req, config);
+		return Delete::execute(req, config, route);
 	}
 	
 	// Méthode inconnue ou non gérée

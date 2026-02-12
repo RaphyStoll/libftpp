@@ -111,7 +111,7 @@ std::string webserv::http::Get::execute(const http::Request& req, const ServerCo
 	}
 	// TODO RAPH: modif getSecurePath pour aller avec cgi
 	// remplir full path avec vrai path cgi et descendre le block en haut -> en bas
-	fullPath = _getSecurePath(config.root, req.getPath(), httpCode, is_cgi);//SDU : trop restrictif
+	fullPath = _getSecurePath(config.root, req.getPath(), httpCode);//SDU : trop restrictif
 	//std::cerr << "fullPath = " <<  fullPath << " code = " << httpCode << std::endl;
 	struct stat s;
 	if (stat(fullPath.c_str(), &s) == 0 && (s.st_mode & S_IFDIR)) {
