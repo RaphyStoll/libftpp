@@ -1,5 +1,8 @@
 #include <string>
 #include <cstring>
+#include <climits>
+
+#include <stdlib.h>
 
 #include "Post.hpp"
 #include "RouteMatcher.hpp"
