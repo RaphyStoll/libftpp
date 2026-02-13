@@ -26,7 +26,6 @@ void DataConfig::state_server()
 	{
 		_state = IN_ROUTE;
 		_currentRoute = RouteConfig();
-		_currentToken = _token[_i + 1];
 //		valid_path(); //SDU a remettre, mais trop chiant pour les test
 		_currentRoute.path = _token[_i + 1];
 		_i += 3;

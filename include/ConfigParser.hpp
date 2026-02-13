@@ -83,6 +83,7 @@ class DataConfig {
 	
 	void	cParser();
 
+
 	private :
 
 	size_t _i;
@@ -91,7 +92,7 @@ class DataConfig {
 	std::vector<std::string> _token;
 	ServerConfig _currentServer;
 	RouteConfig _currentRoute;
-	std::string _currentToken;
+
 
 	void 	openConf();
 	void	tockenize();
@@ -104,6 +105,7 @@ class DataConfig {
 	void	dir_server();
 	void	dir_route();
 
+	void	ipp();
 	void	valid_port();
 	void	valid_max_body_size();
 	void	valid_error_code();
