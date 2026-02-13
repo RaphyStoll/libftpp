@@ -1,5 +1,4 @@
 # include "ConfigParser.hpp"
-# include "../../lib/LIBFTPP/include/libftpp.hpp"
 
 DataConfig::DataConfig() : 	_i(0), _state(GLOBAL)
 {
@@ -116,17 +115,25 @@ void DataConfig::pars_state()
 
 }
 
-void DataConfig::cParser()
+NetworkConfig DataConfig::cParser()
 {
 	std::cout << "config_path = " << config_path << std::endl; //SDU
 
 	openConf();
-//	print_vect(_brutLine);
-//	std::cout << std::endl;
+//	print_vect(_brutLine); //SDU
+//	std::cout << std::endl; //SDU
 	tockenize();
-//	print_vect(_token);
-//	std::cout << std::endl;
+//	print_vect(_token); //SDU
+//	std::cout << std::endl; //SDU
 	pars_state();
 	std::cout << std::endl;
-//	servers.print(); //SDU
+//	_servers.print(); //SDU
+
+	NetworkConfig net_tmp;
+	for(size_t i = 0; i < _servers.size(); i++)
+	{
+		net_tmp[_servers[i].port].push_back(_servers[i]);
+	}
+ 	return net_tmp;
+
 }

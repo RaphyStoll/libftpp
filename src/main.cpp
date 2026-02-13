@@ -1,5 +1,4 @@
 #include "../include/BootStrap.hpp"
-#include "../include/Config.hpp"
 #include "../include/ConfigParser.hpp"
 #include "../include/EventLoop.hpp"
 
@@ -28,17 +27,7 @@ using namespace webserv;
 // 	return config;
 // }
 
-NetworkConfig mapConfig(DataConfig *data)
-{
-	NetworkConfig net_tmp;
 
-	for(size_t i = 0; i < data->servers.size(); i++)
-	{
-		net_tmp[data->servers[i].port].push_back(data->servers[i]);
-	}
- 	return net_tmp;
-
-}
 
 int main(int argc, char** argv) {
 	DataConfig data;
@@ -51,9 +40,8 @@ int main(int argc, char** argv) {
 	try {
 
 		_logger << "[Main] Loading configuration from " << data.config_path << "..." << std::endl;
-		data.cParser();
-
-		NetworkConfig net_config = mapConfig(&data);
+		
+		NetworkConfig net_config = data.cParser();
 
 		_logger << "[Main] Config loaded. Initializing BootStrap..." << std::endl;
 		BootStrap bootstrap(net_config);//

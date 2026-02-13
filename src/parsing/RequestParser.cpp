@@ -12,7 +12,7 @@ RequestParser::RequestParser()
 
 RequestParser::~RequestParser() {}
 
-RequestParser::State RequestParser::parse(const char *data, size_t size, const webserv::NetworkConfig &conf)
+RequestParser::State RequestParser::parse(const char *data, size_t size, const NetworkConfig &conf) //SDU suppr namespace
 {
 	(void)conf;
 	if (_state == COMPLETE || _state == ERROR)

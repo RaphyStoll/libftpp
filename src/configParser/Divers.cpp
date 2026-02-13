@@ -1,6 +1,6 @@
-#ifndef UTILS_SDU_HPP
-# define UTILS_SDU_HPP
+# include "ConfigParser.hpp"
 
+//SDU pour les tests, pourra etre supprimee
 void print_vect(const std::vector<std::string> &vect)
 {
 	size_t i = 0;
@@ -10,5 +10,3 @@ void print_vect(const std::vector<std::string> &vect)
 		i++;
 	}
 }
-
-#endif

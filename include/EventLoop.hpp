@@ -14,7 +14,6 @@
 # include "../lib/LIBFTPP/include/libftpp.hpp"
 # include "RequestParser.hpp"
 # include "Request.hpp"
-# include "Config.hpp"
 # include "Client.hpp"
 
 enum Method { ERROR, GET, DELETE, POST };

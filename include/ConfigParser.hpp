@@ -8,10 +8,11 @@
 #include <string>
 #include <cctype>
 #include <stdexcept>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <cstdlib>
 
-//#include "Utils.hpp"
-
-# include "../lib/LIBFTPP/include/libftpp.hpp"
+#include "../lib/LIBFTPP/include/libftpp.hpp"
 
 #define MAX_BODY_SIZE_LIMIT (1024 * 1024)
 #define MIN_BODY_SIZE_LIMIT 0
@@ -71,6 +72,8 @@ class ServerConfig
 	void print(void) const;
 };
 
+typedef std::map<int, std::vector<ServerConfig> > NetworkConfig;
+
 class DataConfig {
 
 	public :
@@ -79,10 +82,7 @@ class DataConfig {
 	~DataConfig();
 	
 	std::string config_path;
-	std::vector<ServerConfig> servers;
-	
-	void	cParser();
-
+	NetworkConfig	cParser();
 
 	private :
 
@@ -92,6 +92,7 @@ class DataConfig {
 	std::vector<std::string> _token;
 	ServerConfig _currentServer;
 	RouteConfig _currentRoute;
+	std::vector<ServerConfig> _servers;
 
 
 	void 	openConf();
@@ -114,5 +115,6 @@ class DataConfig {
 	int		valid_ipv4();
 
 };
+
 
 #endif

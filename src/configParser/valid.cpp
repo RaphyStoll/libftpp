@@ -1,7 +1,5 @@
 #include"ConfigParser.hpp"
-#include<sys/stat.h>
-#include<unistd.h>
-#include<cstdlib>
+
 
 static bool is_digit(char c) //SDU mettre ailleur?
 {
@@ -13,9 +11,9 @@ void DataConfig::valid_port()
 	int var = libftpp::str::StringUtils::stoi(_token[_i]);
 	if (var < PORT_MIN || var > PORT_MAX)
 		throw std::runtime_error("port out of range : " + _token[_i]);
-//	for(size_t i = 0; i < servers.size(); i++)
+//	for(size_t i = 0; i < _servers.size(); i++)
 //	{
-//		if(servers[i].port == var)
+//		if(_servers[i].port == var)
 //			throw std::runtime_error("port already in use in config : " + _token[_i]);
 //	}
 }

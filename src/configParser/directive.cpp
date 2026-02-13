@@ -7,6 +7,7 @@ void DataConfig::ipp()
 			throw std::out_of_range("Acces token : " + _token[_i - 1]);
 }
 
+
 void DataConfig::dir_server()
 {
 	if(_token[_i] == "server_name")

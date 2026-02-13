@@ -1,7 +1,7 @@
 #ifndef REQUESTPARSER_HPP
 #define REQUESTPARSER_HPP
 
-#include "Config.hpp"
+#include "ConfigParser.hpp"
 #include "Request.hpp"
 #include <cstddef>
 #include <string>
@@ -34,7 +34,7 @@ namespace webserv
 			~RequestParser();
 
 			State parse(const char *data, size_t size,
-						const webserv::NetworkConfig &config);
+						const NetworkConfig &config);//SDU suppr namespace
 			Request &getRequest();
 
 			int getErrorCode() const { return _errorCode; }

@@ -18,7 +18,7 @@ void DataConfig::state_server()
 	if(_token[_i] == "}")
 	{
 		_state = GLOBAL;
-		servers.push_back(_currentServer);
+		_servers.push_back(_currentServer);
 		_i++;
 //		std::cout << "in global" << std::endl;
 	}
