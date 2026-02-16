@@ -11,9 +11,12 @@
 using namespace webserv::http;
 	
 std::string webserv::http::ResponseBuilder::build(const webserv::http::Request& req, const ServerConfig& config) {
+	libftpp::debug::DebugLogger _logger("ResponseBuilder");
+	_logger << "Building response for " << req.getMethod() << " " << req.getPath() << std::endl;
 	
 	const RouteConfig& route = RouteMatcher::findRoute(req.getPath(), config);
 	if (!RouteMatcher::isMethodAllowed(req.getMethod(), route)) {
+		_logger << "Method " << req.getMethod() << " not allowed for route " << req.getPath() << std::endl;
         return generateError(405, config);
     }
 
@@ -37,8 +40,12 @@ std::string webserv::http::ResponseBuilder::build(const webserv::http::Request& 
 }
 
 std::string webserv::http::ResponseBuilder::generateError(int code, const ServerConfig& config) {
+	libftpp::debug::DebugLogger _logger("ResponseBuilder");
+	_logger << "Generating error response for code: " << code << std::endl;
+	
 	std::string msg = getStatusMessage(code);
 	std::string body;
+
 	bool customPageFound = false;
 
 	std::map<int, std::string>::const_iterator it = config.error_pages.find(code);

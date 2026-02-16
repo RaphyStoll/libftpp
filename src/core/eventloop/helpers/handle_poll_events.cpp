@@ -19,6 +19,8 @@ void webserv::core::EventLoop::_handle_poll_events()
 
 		int fd = _poll_fds[i].fd;
 		short revents = _poll_fds[i].revents;
+		
+		_logger << "[EventLoop] Event detected on fd " << fd << ", revents: " << revents << std::endl;
 
 		std::map<int, webserv::core::Client>::iterator it_client = _clients.find(fd);
 		bool is_known_client = (it_client != _clients.end());

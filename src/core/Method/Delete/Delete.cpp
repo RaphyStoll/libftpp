@@ -22,7 +22,7 @@ std::string webserv::http::Delete::execute(const webserv::http::Request& req, co
 		return _logger << "Delete failed. Error code: " << httpCode << std::endl,
 			ResponseBuilder::generateError(httpCode, server);
 	}
-	if (!_deleteFile(fullPath)) {
+	if (!_deleteFile(fullPath, _logger)) {
 		return _logger << "System Error: Could not delete file: " << fullPath << std::endl,
 			ResponseBuilder::generateError(500, server);
 	}

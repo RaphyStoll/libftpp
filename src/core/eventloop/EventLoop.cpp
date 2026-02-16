@@ -17,10 +17,12 @@ using namespace webserv;
 
 	webserv::core::EventLoop::EventLoop(const std::vector<int>& listen_sockets, const NetworkConfig& config) 
 		: _logger("EventLoop"), _config(config), _listen_sockets(listen_sockets) {
+		//_logger << "Initializing EventLoop with " << listen_sockets.size() << " listening sockets." << std::endl;
 		_setup_initial_poll_fds();
 	}
 
 	webserv::core::EventLoop::~EventLoop() {
+		//_logger << "Destroying EventLoop." << std::endl;
 		for (size_t i = 0; i < _poll_fds.size(); ++i) {
 			if (_poll_fds[i].fd >= 0)
 				close(_poll_fds[i].fd);

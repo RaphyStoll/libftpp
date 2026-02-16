@@ -1,6 +1,8 @@
 #include "RouteMatcher.hpp"
 
 const RouteConfig& webserv::http::RouteMatcher::findRoute(const std::string& reqPath, const ServerConfig& server) {
+	libftpp::debug::DebugLogger _logger("RouteMatcher");
+	_logger << "Finding route for path: " << reqPath << std::endl;
 	const std::vector<RouteConfig>& routes = server.routes;
 	
 	const RouteConfig* bestMatch = NULL;
@@ -32,6 +34,12 @@ const RouteConfig& webserv::http::RouteMatcher::findRoute(const std::string& req
 				}
 			}
 		}
+	}
+	
+	if (bestMatch) {
+		_logger << "Best route match found: " << bestMatch->path << std::endl;
+	} else {
+		_logger << "No matching route found, fallback to default." << std::endl;
 	}
 
 	// Sécurité : Si aucune route ne correspond (théoriquement impossible si "/" existe)

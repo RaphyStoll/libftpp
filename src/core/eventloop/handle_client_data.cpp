@@ -20,6 +20,7 @@ using namespace webserv;
 
 void webserv::core::EventLoop::_handle_client_data(int client_fd, size_t poll_index)
 {
+	_logger << "Handling client data on fd " << client_fd << std::endl;
 	char buffer[4096];
 	ssize_t bytes = ::read(client_fd, buffer, sizeof(buffer));
 

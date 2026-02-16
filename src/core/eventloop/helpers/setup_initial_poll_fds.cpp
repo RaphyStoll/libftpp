@@ -17,6 +17,7 @@ using namespace webserv;
 
 void webserv::core::EventLoop::_setup_initial_poll_fds() {
 		for (size_t i = 0; i < _listen_sockets.size(); ++i) {
+			_logger << "Adding listen socket fd " << _listen_sockets[i] << " to poll." << std::endl;
 			struct pollfd pfd;
 			pfd.fd = _listen_sockets[i];
 			pfd.events = POLLIN;
