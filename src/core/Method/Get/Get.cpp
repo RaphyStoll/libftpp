@@ -102,6 +102,9 @@ std::string webserv::http::Get::execute(const webserv::http::Request& req, const
 	std::string effectiveRoute = webserv::http::RouteMatcher::getEffectiveRoot(config, route);
 	std::string fullPath = libftpp::str::PathUtils::join(effectiveRoute, req.getPath());
 
+	_logger << "Get effectiveRoute: " << effectiveRoute << std::endl;
+	_logger << "Get fullPath: " << fullPath << std::endl;
+
 	if (fullPath.find(effectiveRoute) != 0)
 		return _logger << fullPath << "find" << effectiveRoute << "failed" << std::endl,
 			ResponseBuilder::generateError(403, config);
@@ -130,8 +133,8 @@ std::string webserv::http::Get::execute(const webserv::http::Request& req, const
 		else {
 			if (route.directory_listing){
 				//TODO SEB: Autoindex 
-				_logger << "===== AUTO INDEX =====" << std::endl;
-				return "HTTP/1.1 200 OK\r\n\r\nAUTOINDEX TODO";
+				return _logger << "===== AUTO INDEX =====" << std::endl,
+					"HTTP/1.1 200 OK\r\n\r\nAUTOINDEX TODO";
 			}
 			return _logger << "no route.directory_listing for auto index" << std::endl,
 				ResponseBuilder::generateError(403, config);
@@ -139,20 +142,20 @@ std::string webserv::http::Get::execute(const webserv::http::Request& req, const
 	}
 	if (route.cgi == true) {
         std::string ext = route.cgi_extension;
-        
-        // Si le chemin finit par l'extension CGI (ex: .php)
+
         if (fullPath.length() >= ext.length() && 
             fullPath.compare(fullPath.length() - ext.length(), ext.length(), ext) == 0) 
         {
-			_logger << "===== static file =====" << std::endl;
+			_logger << "=====  CGI (GET)  =====" << std::endl;
 			_logger << "cgi = "<< req.getPath() << std::endl;
+
 			// for(size_t i = 0; i < config.routes.size(); i++) //SDU CGI, verifier ou il faut le positionner
 	 		// {
 	 			// if(req.getPath() == config.routes[i].path)
 	 			// {
 					// fullPath = "cgi.html";
 					// 
-					std::string output = effectiveRoute = execute_cgi(req, config, 0);
+					std::string output = execute_cgi(req, config, 0);
 					// return _createSuccessResponse(effectiveRoute, fullPath);
 					// }
 					// }
@@ -162,12 +165,12 @@ std::string webserv::http::Get::execute(const webserv::http::Request& req, const
 			// pas reussi a inclure la fonction actuel je pense elle devrait avoir besoin
 			// de ces 4 info pour fonctionner ou en tout cas avec ces 4 la t'as tout en cas de besoin
             //return execute_cgi(req, fullPath, config, route);
-			return "HTTP/1.1 200 OK\r\n\r\n CG1§§§8I"; // <--- coucou de mon chat
+			return _logger << "output = " << output << std::endl,
+				"HTTP/1.1 200 OK\r\n\r\n CG1§§§8I"; // <--- coucou de mon chat
 
         }
     }
 
-	//static flie lire le fichier et le return au client
     if (access(fullPath.c_str(), R_OK) != 0) {
         return _logger << "acces(fullPAth) | " << fullPath << "dont have permittion for Read" << std::endl,
 			ResponseBuilder::generateError(403, config);
