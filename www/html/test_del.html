@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Miniserv - Delete</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;800&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .font-mono {
+        font-family: "Fira Code", monospace;
+      }
+      /* Animations */
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .cursor-blink {
+        animation: blink 1s step-end infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+    <!-- Header -->
+    <header
+      class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50 border-b border-slate-800"
+    >
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="flex flex-col">
+          <div
+            class="font-mono font-bold text-xl tracking-tighter flex items-center select-none"
+          >
+            <span class="text-slate-500 mr-2">&gt;</span>
+            <span class="text-green-400">rm</span
+            ><span class="text-white">(</span
+            ><span class="text-red-400">file</span
+            ><span class="text-white">);</span>
+            <span class="text-slate-400 ml-2">{miniserv} [./delete]</span>
+            <span
+              class="cursor-blink w-2 h-5 bg-slate-400 ml-1 inline-block align-middle"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-2xl">
+      <div class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">
+          File Exterminator
+        </h1>
+        <p class="text-slate-500 text-lg">
+          Select a target. Execute deletion. No turning back.
+        </p>
+      </div>
+
+      <div class="bg-white p-8 rounded-xl shadow-xl border border-slate-100">
+        <div class="mb-6">
+          <label
+            for="filePath"
+            class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide"
+          >
+            Target Path
+          </label>
+          <div class="relative">
+            <span
+              class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="filePath"
+              placeholder="/to_delete/file.txt"
+              value="/to_delete/sacrifice.txt"
+              class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent font-mono text-sm transition-all"
+            />
+          </div>
+        </div>
+
+        <button
+          onclick="sendDeleteRequest()"
+          class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-lg hover:shadow-red-500/30"
+        >
+          <span class="mr-2">CONFIRM DELETION</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"
+            />
+          </svg>
+        </button>
+
+        <!-- Console Output -->
+        <div class="mt-8">
+          <div class="bg-slate-900 rounded-lg overflow-hidden shadow-inner">
+            <div
+              class="bg-slate-800 px-4 py-2 flex items-center justify-between"
+            >
+              <span class="text-xs text-slate-400 font-mono"
+                >console_output</span
+              >
+              <div class="flex space-x-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+              </div>
+            </div>
+            <div
+              id="result"
+              class="p-4 font-mono text-sm min-h-[80px] text-slate-300 whitespace-pre-wrap"
+            >
+              Waiting for command...
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      class="bg-slate-900 text-slate-400 py-6 text-center text-sm font-mono border-t border-slate-800 mt-auto"
+    >
+      <p>&copy; 2026 Miniserv. Running smoothly.</p>
+    </footer>
+
+    <script>
+      async function sendDeleteRequest() {
+        const filePath = document.getElementById("filePath").value;
+        const resultDiv = document.getElementById("result");
+
+        if (!filePath) {
+          resultDiv.innerHTML =
+            "<span class='text-yellow-400'>[WARN]</span> Please input a valid file path.";
+          return;
+        }
+
+        resultDiv.innerHTML =
+          "<span class='text-blue-400'>[INFO]</span> Sending DELETE request...";
+
+        try {
+          const response = await fetch(filePath, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            resultDiv.innerHTML = `<span class='text-green-400'>[SUCCESS]</span> File deleted successfully.\n<span class='text-slate-500'>Status: ${response.status} ${response.statusText}</span>`;
+          } else {
+            const text = await response.text();
+
+            // Essayons plutôt de masquer les détails HTML trop verbeux pour n'afficher que le message principal
+            // ou affichons simplement "HTML Error Page Received" si c'est trop long
+            let cleanMessage = "HTML Content received";
+
+            // Si c'est une erreur standard Webserv
+            if (text.includes("<title>")) {
+              const titleMatch = text.match(/<title>(.*?)<\/title>/);
+              if (titleMatch && titleMatch[1]) {
+                cleanMessage = "Title: " + titleMatch[1];
+              }
+            }
+
+            resultDiv.innerHTML = `<span class='text-red-400'>[ERROR]</span> Failed to delete file.\n<span class='text-slate-500'>Status: ${response.status} ${response.statusText}</span>\n\n<span class='text-slate-400'>Details: ${cleanMessage}</span>\n<span class='text-xs text-slate-600'>(Check server logs or Network tab for full HTML)</span>`;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<span class='text-red-500'>[FATAL]</span> Network Error: ${error.message}`;
+        }
+      }
+    </script>
+  </body>
+</html>
