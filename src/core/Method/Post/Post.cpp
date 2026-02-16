@@ -23,6 +23,39 @@ std::string webserv::http::Post::execute(const webserv::http::Request& req, cons
 	(void)httpCode; // FIXME : pas use pour l'instant mais comme la fontion n'est pas fini je le laisse (pareil sur get)
 
 	std::string effectiveRoute = webserv::http::RouteMatcher::getEffectiveRoot(config, route);
+	
+	// Si le préfixe de la requête correspond à la route, on ne veut probablement pas 
+	// le dupliquer dans le path physique final si 'root' est un alias.
+	// MAIS dans la structure actuelle, getPath() retourne le path complet de la requête (ex: /post/newfile.html).
+	// Et effectiveRoute retourne './www/upload'.
+	// PathUtils::join concatène betement : ./www/upload/post/newfile.html
+	// Ce qui est incorrect si on veut mapper /post -> ./www/upload
+	
+	std::string reqPath = req.getPath();
+	std::string fullPath;
+
+	// Tentative de gestion type "alias" basique :
+	// Si la route match est "/post" et reqPath est "/post/newfile",
+	// et que root est "./www/upload", on veut "./www/upload/newfile".
+	// Donc on doit retirer la partie "route path" du "req path" avant de join.
+
+	// Attention: route.path n'est pas passé directement à execute, mais est dans 'route'.
+	// On suppose que 'route' est la config de la route matchée.
+	
+	if (reqPath.find(route.path) == 0) {
+		std::string suffix = reqPath.substr(route.path.length());
+		fullPath = libftpp::str::PathUtils::join(effectiveRoute, suffix);
+	} else {
+		// Cas fallback si jamais ça match pas (peu probable si RouteMatcher a bien fait son taff)
+		fullPath = libftpp::str::PathUtils::join(effectiveRoute, reqPath);
+	}
+
+	_logger << "Post effectiveRoute: " << effectiveRoute << std::endl;
+	_logger << "Post reqPath: " << reqPath << std::endl;
+	_logger << "Post routePath: " << route.path << std::endl;
+	_logger << "Post fullPath (fixed): " << fullPath << std::endl;
+
+/*
 	std::string fullPath = libftpp::str::PathUtils::join(effectiveRoute, req.getPath());
 
 	_logger << "Post effectiveRoute: " << effectiveRoute << std::endl;
@@ -31,7 +64,15 @@ std::string webserv::http::Post::execute(const webserv::http::Request& req, cons
 	if (fullPath.find(effectiveRoute) != 0)
 		return _logger << fullPath << " find " << effectiveRoute << " failed" << std::endl,
 			ResponseBuilder::generateError(403, config);
-	
+*/
+	if (libftpp::str::PathUtils::isDirectory(fullPath)) {
+		if (route.cgi == false) {
+			// TODO: Pour l'instant, on rejette le POST sur un dossier sans CGI.
+			return _logger << "POST on directory without CGI forbidden" << std::endl,
+				ResponseBuilder::generateError(403, config);
+		}
+	}
+/*
 	if (libftpp::str::PathUtils::isDirectory(fullPath)) {
 		
 		std::string indexName;
@@ -54,7 +95,7 @@ std::string webserv::http::Post::execute(const webserv::http::Request& req, cons
 				ResponseBuilder::generateError(403, config);
 		}
 	}
-
+*/
 	if (route.cgi == true) {
 		std::string ext = route.cgi_extension;
 		
