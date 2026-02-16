@@ -1,14 +1,58 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Test Page Webserv</title>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Miniserv - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #e0f7fa; font-family: sans-serif; text-align: center; padding-top: 50px; }
-        .box { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #006064; }
+      @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;800&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .font-mono {
+        font-family: "Fira Code", monospace;
+      }
+      /* Animations */
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .cursor-blink {
+        animation: blink 1s step-end infinite;
+      }
     </style>
-</head>
+  </head>
+  <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+    <!-- Header -->
+    <header
+      class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50 border-b border-slate-800"
+    >
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="flex flex-col">
+          <div
+            class="font-mono font-bold text-xl tracking-tighter flex items-center select-none"
+          >
+            <span class="text-slate-500 mr-2">&gt;</span>
+            <span class="text-green-400">return</span
+            ><span class="text-white">(</span
+            ><span class="text-blue-400">0</span
+            ><span class="text-white">);</span>
+            <span class="text-slate-400 ml-2">{miniserv} [html/test_server]</span>
+            <span
+              class="cursor-blink w-2 h-5 bg-slate-400 ml-1 inline-block align-middle"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- content -->
 <body>
     <div class="box">
         <h1>Succès !</h1>
@@ -16,4 +60,13 @@
         <p>URL: <code>/test_server.html</code></p>
     </div>
 </body>
+</html>
+
+    <!-- Footer -->
+    <footer
+      class="bg-slate-900 text-slate-400 py-6 text-center text-sm font-mono border-t border-slate-800 mt-auto"
+    >
+      <p>&copy; 2026 Miniserv. Running smoothly.</p>
+    </footer>
+  </body>
 </html>

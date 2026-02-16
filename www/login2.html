@@ -1,17 +1,67 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h2>Login</h2>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Miniserv - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;600;800&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .font-mono {
+        font-family: "Fira Code", monospace;
+      }
+      /* Animations */
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .cursor-blink {
+        animation: blink 1s step-end infinite;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+    <!-- Header -->
+    <header
+      class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50 border-b border-slate-800"
+    >
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="flex flex-col">
+          <div
+            class="font-mono font-bold text-xl tracking-tighter flex items-center select-none"
+          >
+            <span class="text-slate-500 mr-2">&gt;</span>
+            <span class="text-green-400">return</span
+            ><span class="text-white">(</span
+            ><span class="text-blue-400">0</span
+            ><span class="text-white">);</span>
+            <span class="text-slate-400 ml-2">{miniserv} [./login2]</span>
+            <span
+              class="cursor-blink w-2 h-5 bg-slate-400 ml-1 inline-block align-middle"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </header>
+  <body>
+    <h2>Login</h2>
 
-<form action="/cgi/login.py" method="POST">
-  <label>Login:</label><br>
-  <input type="text" name="login"><br><br>
+    <form action="/cgi/login.py" method="POST">
+      <label>Login:</label><br />
+      <input type="text" name="login" /><br /><br />
 
-  <label>Password:</label><br>
-  <input type="password" name="password"><br><br>
+      <label>Password:</label><br />
+      <input type="password" name="password" /><br /><br />
 
-  <button type="submit">Connexion</button>
-</form>
-
-</body>
+      <button type="submit">Connexion</button>
+    </form>
+  </body>
 </html>
