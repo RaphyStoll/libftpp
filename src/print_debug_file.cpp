@@ -35,6 +35,25 @@ libftpp::debug::DebugLogger::DebugLogger(const std::string& filename) {
 }
 
 /**
+ * @brief Constructeur de copie
+ */
+libftpp::debug::DebugLogger::DebugLogger(const DebugLogger& other) : _filename(other._filename) {
+	_ss << other._ss.str();
+}
+
+/**
+ * @brief Opérateur d'affectation
+ */
+libftpp::debug::DebugLogger& libftpp::debug::DebugLogger::operator=(const DebugLogger& other) {
+	if (this != &other) {
+		_filename = other._filename;
+		_ss.str("");
+		_ss << other._ss.str();
+	}
+	return *this;
+}
+
+/**
  * @brief Destructeur de la classe DebugLogger
  *
  * Ne fait rien de spécifique mais est fourni pour la clarté.
