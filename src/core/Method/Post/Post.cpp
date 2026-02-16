@@ -1,67 +1,98 @@
-#include <string>
-#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <climits>
+#include <cstdlib>
+#include <vector>
+
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 
 #include "Post.hpp"
 #include "ResponseBuilder.hpp"
+#include "libftpp.hpp"
+#include "Request.hpp"
+#include "RouteMatcher.hpp"
 
+using namespace webserv::http;
 
-
-std::string webserv::http::Post::execute(const webserv::http::Request& req, const ServerConfig& server, const RouteConfig& route)
+std::string webserv::http::Post::execute(const webserv::http::Request& req, const ServerConfig& config, const RouteConfig& route)
 {
-int httpCode = 201; // Par défaut : Created
+	libftpp::debug::DebugLogger _logger("post");
+	int httpCode = 200;
+	(void)httpCode; // FIXME : pas use pour l'instant mais comme la fontion n'est pas fini je le laisse (pareil sur get)
 
-    // 1. Vérification de la taille (Max Body Size du Serveur)
-    if (!_checkBodySize(req.getBody().size(), server.max_body_size, httpCode)) {
-        return ResponseBuilder::generateError(httpCode, server);
-    }
+	std::string effectiveRoute = webserv::http::RouteMatcher::getEffectiveRoot(config, route);
+	std::string fullPath = libftpp::str::PathUtils::join(effectiveRoute, req.getPath());
 
-    // 2. Calcul du chemin de destination
-    // On passe la route et le serveur pour décider (upload_path vs root)
-    std::string fullPath = _getUploadPath(req.getPath(), route, server, httpCode);
-    
-    if (httpCode != 201) { 
-        // Si erreur dans le calcul du chemin (403 Forbidden, 500 Internal...)
-        return ResponseBuilder::generateError(httpCode, server);
-    }
+	_logger << "Post effectiveRoute: " << effectiveRoute << std::endl;
+	_logger << "Post fullPath: " << fullPath << std::endl;
 
-    // 3. Vérification d'existence (200 OK vs 201 Created)
-    // Si le fichier existe déjà, on l'écrase -> c'est une mise à jour (200)
-    if (access(fullPath.c_str(), F_OK) == 0) {
-        httpCode = 200;
-    }
+	if (fullPath.find(effectiveRoute) != 0)
+		return _logger << fullPath << " find " << effectiveRoute << " failed" << std::endl,
+			ResponseBuilder::generateError(403, config);
+	
+	if (libftpp::str::PathUtils::isDirectory(fullPath)) {
+		
+		std::string indexName;
+		if (!config.index.empty()) {
+			_logger << "Index from config: " << config.index << std::endl;
+			indexName = config.index;
+		} 
+		else {
+			_logger << "Index is empty, Fallback to index.html" << std::endl;
+			indexName = "index.html"; 
+		}
 
-    // 4. Écriture du fichier
-    if (!_writeFile(fullPath, req.getBody())) {
-        return ResponseBuilder::generateError(500, server); // Erreur I/O
-    }
-
-    // 5. Construction de la réponse
-    std::ostringstream response;
-    
-    response << "HTTP/1.1 " << httpCode << " " << ResponseBuilder::getStatusMessage(httpCode) << "\r\n";
-    
-    // Header Location (Standard HTTP pour une création 201)
-    if (httpCode == 201) {
-        response << "Location: " << req.getPath() << "\r\n";
-    }
-    
-    response << "Content-Length: 0\r\n";
-    response << "Connection: close\r\n"; // Ou keep-alive plus tard
-    response << "\r\n";
-
-	bool hardcode = 1; // FIXME : test hardcodder en attendant les cgi
-	if (hardcode == 1)
-	{
-		std::string body1 = "<html><body><h1>POST Success!</h1><p>Donnees recues avec succes.</p></body></html>";
-		std::ostringstream response1;
-		response1 << "HTTP/1.1 200 OK\r\n";
-		response1 << "Content-Type: text/html\r\n";
-		response1 << "Content-Length: " << body1.length() << "\r\n";
-		response1 << "Connection: close\r\n";
-		response1 << "\r\n";
-		response1 << body1;
-
-		return response1.str();
+		std::string indexPath = libftpp::str::PathUtils::join(fullPath, indexName);
+		
+		if (libftpp::str::PathUtils::exists(indexPath)) {
+			_logger << "Index found: " << indexPath << std::endl;
+			fullPath = indexPath; 
+		} else {
+			return _logger << "No index found for POST on directory" << std::endl,
+				ResponseBuilder::generateError(403, config);
+		}
 	}
+
+	if (route.cgi == true) {
+		std::string ext = route.cgi_extension;
+		
+		if (fullPath.length() >= ext.length() && 
+			fullPath.compare(fullPath.length() - ext.length(), ext.length(), ext) == 0) 
+		{
+			_logger << "===== CGI (POST) =====" << std::endl;
+			_logger << "cgi = " << req.getPath() << std::endl;
+
+			// TODO SDU: cgi ici Call
+			// std::string output = execute_cgi(req, config, 0); 
+			// return output;
+			
+			return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nCGI POST OUTPUT (TODO)"; 
+		}
+	}
+
+	if (req.getBody().size() > config.max_body_size) {
+		return ResponseBuilder::generateError(413, config);
+	}
+	_logger << "Writing to file: " << fullPath << std::endl;
+	
+	std::ofstream file(fullPath.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+	if (!file.is_open())
+		return _logger << "Could not open file for writing: " << fullPath << std::endl,
+			ResponseBuilder::generateError(500, config);
+
+	file.write(req.getBody().c_str(), req.getBody().size());
+	file.close();
+
+	int responseCode = 201;
+	std::ostringstream response;
+	response << "HTTP/1.1 " << responseCode << " " << ResponseBuilder::getStatusMessage(responseCode) << "\r\n";
+	if (responseCode == 201) {
+		response << "Location: " << req.getPath() << "\r\n";
+	}
+	response << "Content-Length: 0\r\n";
+	response << "Connection: close\r\n\r\n";
+	
     return response.str();
 }
