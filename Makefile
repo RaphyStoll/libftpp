@@ -136,4 +136,57 @@ pull-libftpp:
 push-libftpp:
 	git subtree push --prefix=lib/LIBFTPP libftpp main
 
-.PHONY: all clean fclean re colima-start up down join logs re-docker test-run test-clean
+help:
+	@echo "$(YELLOW)Usage: make [TARGET]$(NC)"
+	@echo ""
+	@echo "$(BLUE)General Targets:$(NC)"
+	@echo "  $(GREEN)all$(NC)             Build the executable $(NAME)"
+	@echo "  $(GREEN)clean$(NC)           Remove object files"
+	@echo "  $(GREEN)fclean$(NC)          Remove object files and executable"
+	@echo "  $(GREEN)re$(NC)              Rebuild everything"
+	@echo ""
+	@echo "$(BLUE)Test Targets:$(NC)"
+	@echo "  $(GREEN)test$(NC)            Build the test executable $(TEST_NAME)"
+	@echo "  $(GREEN)test-run$(NC)        Build and run tests"
+	@echo "  $(GREEN)test-clean$(NC)      Remove test artifacts"
+	@echo ""
+	@echo "$(BLUE)Docker Targets:$(NC)"
+	@echo "  $(GREEN)up$(NC)              Start docker containers (with colima check)"
+	@echo "  $(GREEN)down$(NC)            Stop docker containers"
+	@echo "  $(GREEN)logs$(NC)            View docker logs"
+	@echo "  $(GREEN)join$(NC)            Join the webserv_tester container shell"
+	@echo "  $(GREEN)re-docker$(NC)       Restart docker containers"
+	@echo ""
+	@echo "$(BLUE)Git Subtree Targets:$(NC)"
+	@echo "  $(GREEN)pull-libftpp$(NC)    Pull updates for LIBFTPP subtree"
+	@echo "  $(GREEN)push-libftpp$(NC)    Push updates for LIBFTPP subtree"
+	@echo ""
+
+help_fr:
+	@echo "$(YELLOW)Utilisation: make [CIBLE]$(NC)"
+	@echo ""
+	@echo "$(BLUE)Cibles Générales:$(NC)"
+	@echo "  $(GREEN)all$(NC)             Compiler l'exécutable $(NAME)"
+	@echo "  $(GREEN)clean$(NC)           Supprimer les fichiers objets"
+	@echo "  $(GREEN)fclean$(NC)          Supprimer les fichiers objets et l'exécutable"
+	@echo "  $(GREEN)re$(NC)              Recompiler tout"
+	@echo ""
+	@echo "$(BLUE)Cibles de Test:$(NC)"
+	@echo "  $(GREEN)test$(NC)            Compiler l'exécutable de test $(TEST_NAME)"
+	@echo "  $(GREEN)test-run$(NC)        Compiler et exécuter les tests"
+	@echo "  $(GREEN)test-clean$(NC)      Supprimer les artefacts de test"
+	@echo ""
+	@echo "$(BLUE)Cibles Docker:$(NC)"
+	@echo "  $(GREEN)up$(NC)              Démarrer les conteneurs docker (avec vérification colima)"
+	@echo "  $(GREEN)down$(NC)            Arrêter les conteneurs docker"
+	@echo "  $(GREEN)logs$(NC)            Voir les journaux docker"
+	@echo "  $(GREEN)join$(NC)            Rejoindre le shell du conteneur webserv_tester"
+	@echo "  $(GREEN)re-docker$(NC)       Redémarrer les conteneurs docker"
+	@echo ""
+	@echo "$(BLUE)Cibles Git Subtree:$(NC)"
+	@echo "  $(GREEN)pull-libftpp$(NC)    Récupérer les mises à jour pour le subtree LIBFTPP"
+	@echo "  $(GREEN)push-libftpp$(NC)    Pousser les mises à jour pour le subtree LIBFTPP"
+	@echo ""
+
+
+.PHONY: all clean fclean re colima-start up down join logs re-docker test-run test-clean help help_fr
