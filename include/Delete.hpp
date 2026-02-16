@@ -15,7 +15,7 @@ namespace webserv {
 			
 			private:
 				// calcul le path a del et check les droit
-				static std::string _getDeletePath(const std::string& reqPath, const ServerConfig& server, const RouteConfig& route, int& httpCode);	
+				static std::string _getDeletePath(const std::string& reqPath, const ServerConfig& server, const RouteConfig& route, int& httpCode, libftpp::debug::DebugLogger _logger);	
 				
 				// del le ficher 
 				static bool _deleteFile(const std::string& path);
