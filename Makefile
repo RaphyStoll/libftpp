@@ -136,6 +136,18 @@ pull-libftpp:
 push-libftpp:
 	git subtree push --prefix=lib/LIBFTPP libftpp main
 
+siege:
+	siege --file=staging-urls.txt --internet --verbose --reps=200 --concurrent=25 --no-parser
+
+siege_stress:
+	siege --benchmark --file=staging-urls.txt --concurrent=100 --time=30S --no-parser
+
+siege_charge:
+	siege --internet --delay=1 --file=staging-urls.txt --concurrent=50 --reps=100 --verbose
+
+valgrind:
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --log-file=valgrind.log ./Webserv config/raph.conf
+
 help:
 	@echo "$(YELLOW)Usage: make [TARGET]$(NC)"
 	@echo ""
@@ -149,6 +161,12 @@ help:
 	@echo "  $(GREEN)test$(NC)            Build the test executable $(TEST_NAME)"
 	@echo "  $(GREEN)test-run$(NC)        Build and run tests"
 	@echo "  $(GREEN)test-clean$(NC)      Remove test artifacts"
+	@echo ""
+	@echo "$(BLUE)Performance & Debugging:$(NC)"
+	@echo "  $(GREEN)siege$(NC)           Launch standard siege test"
+	@echo "  $(GREEN)siege_stress$(NC)    Launch stress test (benchmark mode, no delay)"
+	@echo "  $(GREEN)siege_charge$(NC)    Launch realistic load test (internet mode, with delay)"
+	@echo "  $(GREEN)valgrind$(NC)        Launch server with Valgrind (logs to valgrind.log)"
 	@echo ""
 	@echo "$(BLUE)Docker Targets:$(NC)"
 	@echo "  $(GREEN)up$(NC)              Start docker containers (with colima check)"
@@ -171,11 +189,17 @@ help_fr:
 	@echo "  $(GREEN)fclean$(NC)          Supprimer les fichiers objets et l'exécutable"
 	@echo "  $(GREEN)re$(NC)              Recompiler tout"
 	@echo ""
-	@echo "$(BLUE)Cibles de Test:$(NC)"
+	@echo "$(BLUE)Cibles de Test Unitaire:$(NC)"
 	@echo "  $(GREEN)test$(NC)            Compiler l'exécutable de test $(TEST_NAME)"
 	@echo "  $(GREEN)test-run$(NC)        Compiler et exécuter les tests"
 	@echo "  $(GREEN)test-clean$(NC)      Supprimer les artefacts de test"
 	@echo ""
+	@echo "$(BLUE)Performance & Débogage:$(NC)"
+	@echo "  $(GREEN)siege$(NC)           Lancer un test siege standard"
+	@echo "  $(GREEN)siege_stress$(NC)    Test de résistance (mode benchmark, sans délai)"
+	@echo "  $(GREEN)siege_charge$(NC)    Test de charge réaliste (mode internet, avec délai)"
+	@echo "  $(GREEN)valgrind$(NC)        Lancer le serveur avec Valgrind (logs dans valgrind.log)"
+	@echo ""	
 	@echo "$(BLUE)Cibles Docker:$(NC)"
 	@echo "  $(GREEN)up$(NC)              Démarrer les conteneurs docker (avec vérification colima)"
 	@echo "  $(GREEN)down$(NC)            Arrêter les conteneurs docker"
