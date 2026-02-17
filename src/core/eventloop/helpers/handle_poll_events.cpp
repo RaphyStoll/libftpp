@@ -46,14 +46,22 @@ void webserv::core::EventLoop::_handle_poll_events()
 
 			if (is_listener)
 				_accept_new_connection(fd);
-			else
+			else {
 				_handle_client_data(fd, i);
+				if (_clients.find(fd) == _clients.end()) {
+					continue;
+				}
+			}
 		}
 
 		if (revents & POLLOUT) {
-			if (is_known_client && it_client->second.hasResponseToSend()) {
+			// On récupère l'itérateur à jour car _clients a pu changer (insertions/suppressions ailleurs)
+			// ou simplement pour être sûr de ne pas utiliser un itérateur invalide
+			std::map<int, webserv::core::Client>::iterator current_it = _clients.find(fd);
+			
+			if (current_it != _clients.end() && current_it->second.hasResponseToSend()) {
 				
-				std::string& data = it_client->second.getResponseBuffer();
+				std::string& data = current_it->second.getResponseBuffer();
 				
 				ssize_t bytes = ::send(fd, data.c_str(), data.size(), 0);
 				
